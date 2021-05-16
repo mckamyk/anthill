@@ -4,9 +4,10 @@ import {HardhatUserConfig} from 'hardhat/config';
 import {HardhatNetworkHDAccountsUserConfig} from 'hardhat/types';
 import 'hardhat-typechain';
 import 'hardhat-watcher';
-import * as fs from 'fs';
+
+import {Home} from './gui/types';
+import fs from 'fs';
 import path from 'path';
-import { ethers } from 'hardhat';
 
 interface Config extends HardhatUserConfig {
   accounts?: HardhatNetworkHDAccountsUserConfig;
@@ -34,23 +35,36 @@ task('dev', 'Main development task', async (args, hre) => {
 
 task('init', 'Initializes the contract state, and updates address reference', async (args, hre) => {
   const accounts = await hre.ethers.getSigners();
+
+  const walletAddress = '0xAB82910FE0a55E4Aa680DBc08bae45113566c309'
+
   const {ethers} = hre;
-  const [primary, ...rest] = accounts;
-
-  const transactions = rest.map(async (addy) => {
-    primary.sendTransaction({
-      to: addy.address,
-      value: ethers.utils.parseEther('123')
-    })
+  hre.network.provider.request({
+    method: 'hardhat_impersonateAccount',
+    params: [walletAddress]
   })
+  const signer = ethers.provider.getSigner(walletAddress);
 
-  await Promise.all(transactions);
+  const internalAccounts = await ethers.getSigners();
+
+  await internalAccounts[0].sendTransaction({ to: walletAddress, value: ethers.utils.parseEther('100')});
+
+  const HomeFactory = (await ethers.getContractFactory('Home')).connect(signer);
+  const Home = await HomeFactory.deploy() as Home;
+  const out = {address: Home.address};
+  console.log(`Deployed Home to ${Home.address}`);
+  fs.writeFileSync(path.join(__dirname, 'gui', 'address.json'), JSON.stringify(out));
 })
 
 const config: Config = {
   solidity: '0.8.3',
-  accounts: {
-    mnemonic: 'test test test test test test test test test test test junk',
+  networks: {
+    hardhat: {
+      chainId: 14,
+      forking: {
+        url: "https://eth-mainnet.alchemyapi.io/v2/V0nBEYPNRBYaZmLGh9psiWwTDwGEXlk7" 
+      },
+    }
   },
   watcher: {
     rebuild: {

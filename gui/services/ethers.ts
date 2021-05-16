@@ -25,6 +25,10 @@ export const softConnect = () => {
   signer = provider.getSigner();
 };
 
+export const getDetails = () => {
+  return { signer, provider };
+}
+
 export const getBalance = async () => {
   if (!isConnected()) return;
   return signer.getBalance();

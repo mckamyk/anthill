@@ -29,7 +29,12 @@ const config: Config = {
       '#router': path.resolve(__dirname, 'gui/services/Router'),
       '#services': path.resolve(__dirname, 'gui/services'),
       '#components': path.resolve(__dirname, 'gui/components'),
+      '#contracts': path.resolve(__dirname, 'artifacts/contracts'),
     }
+  },
+
+  watchOptions: {
+    ignored: 'gui/types',
   },
 
   module: {
