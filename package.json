@@ -1,5 +1,5 @@
 {
-  "name": "night-site",
+  "name": "ant-hill",
   "version": "0.0.1",
   "main": "index.js",
   "author": "McKittrick Kaminski <mckittrick.kaminski@gmail.com>",
@@ -9,7 +9,9 @@
     "postinstall": "link-module-alias"
   },
   "_moduleAliases": {
-    "@components": "gui/components"
+    "#components": "gui/components",
+    "#services": "gui/services",
+    "#router": "gui/services/Router"
   },
   "dependencies": {
     "@open-wc/scoped-elements": "^1.3.3",

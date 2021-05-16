@@ -1,6 +1,7 @@
 import * as webpack from 'webpack';
 import HtmlWebpackPlugin from 'html-webpack-plugin';
 import * as wds from 'webpack-dev-server';
+import path from 'path';
 
 interface Config extends webpack.Configuration {
   devServer?: wds.Configuration;
@@ -23,7 +24,12 @@ const config: Config = {
   },
 
   resolve: {
-    extensions: ['.ts', '.js']
+    extensions: ['.ts', '.js'],
+    alias: {
+      '#router': path.resolve(__dirname, 'gui/services/Router'),
+      '#services': path.resolve(__dirname, 'gui/services'),
+      '#components': path.resolve(__dirname, 'gui/components'),
+    }
   },
 
   module: {

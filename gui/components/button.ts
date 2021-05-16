@@ -4,10 +4,18 @@ import { colors } from "../styles/global";
 export default class Button extends LitElement {
   render() {
     return html`
-      <div class="wrapper">
+      <div class="wrapper" @click=${this.clicked}>
         <slot></slot>
       </div>
     `;
+  }
+
+  clicked(ev: MouseEvent) {
+    ev.stopPropagation();
+    this.dispatchEvent(new CustomEvent<void>('click', {
+      bubbles: true,
+      composed: true,
+    }))
   }
 
   static styles = [colors, css`

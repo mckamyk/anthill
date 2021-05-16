@@ -6,6 +6,7 @@ import 'hardhat-typechain';
 import 'hardhat-watcher';
 import * as fs from 'fs';
 import path from 'path';
+import { ethers } from 'hardhat';
 
 interface Config extends HardhatUserConfig {
   accounts?: HardhatNetworkHDAccountsUserConfig;
@@ -32,14 +33,18 @@ task('dev', 'Main development task', async (args, hre) => {
 });
 
 task('init', 'Initializes the contract state, and updates address reference', async (args, hre) => {
-  const Greeter = await hre.ethers.getContractFactory('Greeter');
-  const greeter = await Greeter.deploy('Hello, world!');
-  
-  await greeter.deployed();
+  const accounts = await hre.ethers.getSigners();
+  const {ethers} = hre;
+  const [primary, ...rest] = accounts;
 
-  const data = JSON.stringify({address: greeter.address})
+  const transactions = rest.map(async (addy) => {
+    primary.sendTransaction({
+      to: addy.address,
+      value: ethers.utils.parseEther('123')
+    })
+  })
 
-  fs.writeFileSync(path.join(__dirname, 'gui', 'address.json'), data);
+  await Promise.all(transactions);
 })
 
 const config: Config = {

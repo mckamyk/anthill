@@ -2,7 +2,9 @@ import {LitElement, html, customElement, css} from 'lit-element';
 import { ScopedElementsMixin as scope } from "@open-wc/scoped-elements";
 import {colors, font} from './styles/global';
 
-import Root from "./Root/root";
+import './bootstrap';
+
+import Root from "./Root";
 
 @customElement('index-element')
 export default class IndexElement extends scope(LitElement) {
@@ -16,7 +18,7 @@ export default class IndexElement extends scope(LitElement) {
 
   static styles = [colors, font, css`
     .wrapper {
-      background: var(--low);
+      background: var(--bg);
       width: 100vw;
       height: 100vh;
     }

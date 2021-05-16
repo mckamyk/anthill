@@ -29,7 +29,7 @@ export default class Card extends LitElement {
 
   static styles = [colors, css`
     :host {
-      --bg-color: var(--color, var(--med));
+      --bg-color: var(--color, var(--low));
       --line: var(--line-color, var(--high));
     }
     .wrapper {
