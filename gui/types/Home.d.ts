@@ -35,7 +35,7 @@ interface HomeInterface extends ethers.utils.Interface {
   decodeFunctionResult(functionFragment: "setMessage", data: BytesLike): Result;
 
   events: {
-    "MessageUpdated()": EventFragment;
+    "MessageUpdated(string)": EventFragment;
   };
 
   getEvent(nameOrSignatureOrTopic: "MessageUpdated"): EventFragment;
@@ -140,7 +140,9 @@ export class Home extends Contract {
   };
 
   filters: {
-    MessageUpdated(): TypedEventFilter<[], {}>;
+    MessageUpdated(
+      message: null
+    ): TypedEventFilter<[string], { message: string }>;
   };
 
   estimateGas: {

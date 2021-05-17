@@ -1,10 +1,12 @@
-import {LitElement, html, css} from 'lit-element';
+import {LitElement, html, css, property} from 'lit-element';
 import {colors} from '../styles/global';
 
 export default class Button extends LitElement {
+  @property({type: Boolean}) disabled = false;
+
   render() {
     return html`
-      <div class="wrapper" @click=${this.clicked} part="wrapper">
+      <div class="wrapper ${this.disabled ? 'disabled' : ''}" @click=${this.clicked} part="wrapper">
         <slot></slot>
       </div>
     `;
@@ -39,6 +41,9 @@ export default class Button extends LitElement {
     }
     .wrapper:active {
       background: var(--accent);
+    }
+    .disabled {
+      background: var(--disable);
     }
   `]
 }

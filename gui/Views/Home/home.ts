@@ -9,24 +9,26 @@ export default class Home extends scope(LitElement) {
   @property({attribute: false}) message: string = '';
   @property({attribute: false}) newMessage: string = '';
 
+  @property({attribute: false}) loading = false;
+
   firstUpdated() {
     getOwner().then((owner) => this.owner = owner);
-    this.getMessage();
+    getMessage().then((message) => this.message = message);
 
     const contract = getContract();
-    contract.on('MessageChanged', () => this.getMessage());
-  }
-
-  getMessage() {
-    getMessage().then((message) => this.message = message);
+    contract.on('MessageUpdated', (message: string) => this.message = message);
   }
 
   messageChange(ev: CustomEvent<string>) {
     this.newMessage = ev.detail;
   }
 
-  changeMessage(ev: CustomEvent<void>) {
-    setMessage(this.newMessage);
+  async changeMessage(ev: CustomEvent<void>) {
+    const m = this.newMessage;
+    this.newMessage = '';
+    this.loading = true;
+    await setMessage(m);
+    this.loading = false;
   }
 
   render() {
@@ -37,7 +39,7 @@ export default class Home extends scope(LitElement) {
         <div class="updateMessage">
           <span>Change Message: </span>
           <ah-input @change=${this.messageChange}></ah-input>
-          <ah-button class="button" @click=${this.changeMessage}>Submit</ah-button>
+          <ah-button ?disabled=${this.loading} class="button" @click=${this.changeMessage}>Submit</ah-button>
         </div>
       </div>
     `;

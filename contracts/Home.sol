@@ -7,7 +7,7 @@ contract Home {
   address public owner;
   string public message;
 
-  event MessageUpdated();
+  event MessageUpdated(string message);
 
   constructor() {
     console.log("Creating Home with owner %s", msg.sender);
@@ -17,6 +17,6 @@ contract Home {
 
   function setMessage(string memory _message) public {
     message = _message;
-    emit MessageUpdated();
+    emit MessageUpdated(message);
   }
 }

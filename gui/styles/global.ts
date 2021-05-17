@@ -8,6 +8,7 @@ export const colors = css`
     --high: #DFA16A;
     --white: #EEDFCB;
     --accent: #8A9256;
+    --disable: #5e5954;
     color: var(--white);
   }
 `;
