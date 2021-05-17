@@ -13,4 +13,5 @@ plugins:
 rules:
   'require-jsdoc': off
   'max-len':
-    code: 200
+  - error
+  - code: 200

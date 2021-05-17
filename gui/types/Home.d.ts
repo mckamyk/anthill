@@ -34,7 +34,11 @@ interface HomeInterface extends ethers.utils.Interface {
   decodeFunctionResult(functionFragment: "owner", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "setMessage", data: BytesLike): Result;
 
-  events: {};
+  events: {
+    "MessageUpdated()": EventFragment;
+  };
+
+  getEvent(nameOrSignatureOrTopic: "MessageUpdated"): EventFragment;
 }
 
 export class Home extends Contract {
@@ -135,7 +139,9 @@ export class Home extends Contract {
     ): Promise<void>;
   };
 
-  filters: {};
+  filters: {
+    MessageUpdated(): TypedEventFilter<[], {}>;
+  };
 
   estimateGas: {
     message(overrides?: CallOverrides): Promise<BigNumber>;
