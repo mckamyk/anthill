@@ -1,7 +1,6 @@
 import {ethers, providers, Signer} from 'ethers';
 import {routeTo} from './Router';
 
-
 let provider: providers.Web3Provider;
 let signer: Signer;
 
@@ -26,8 +25,8 @@ export const softConnect = () => {
 };
 
 export const getDetails = () => {
-  return { signer, provider };
-}
+  return {signer, provider};
+};
 
 export const getBalance = async () => {
   if (!isConnected()) return;

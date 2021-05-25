@@ -3,6 +3,7 @@ import {ScopedElementsMixin as scope} from '@open-wc/scoped-elements';
 import {getContract, getMessage, getOwner, setMessage} from '#services/home';
 import Input from '#components/input';
 import Button from '#components/button';
+import Balances from './balances';
 
 export default class Home extends scope(LitElement) {
   @property({attribute: false}) owner: string = '';
@@ -34,13 +35,7 @@ export default class Home extends scope(LitElement) {
   render() {
     return html`
       <div class="wrapper">
-        <div>Owner: ${this.owner}</div>
-        <div>Message: ${this.message}</div>
-        <div class="updateMessage">
-          <span>Change Message: </span>
-          <ah-input @change=${this.messageChange}></ah-input>
-          <ah-button ?disabled=${this.loading} class="button" @click=${this.changeMessage}>Submit</ah-button>
-        </div>
+        <ah-balances></ah-balances>
       </div>
     `;
   }
@@ -71,6 +66,7 @@ export default class Home extends scope(LitElement) {
     return {
       'ah-input': Input,
       'ah-button': Button,
+      'ah-balances': Balances,
     };
   }
 }
