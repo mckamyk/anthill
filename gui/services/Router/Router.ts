@@ -3,8 +3,11 @@ import {ScopedElementsMixin as scope} from '@open-wc/scoped-elements';
 import {softConnect} from '../ethers';
 import {getWinnerRoute} from './util';
 import type {RoutePath} from './util';
+import {Subject} from 'rxjs';
 
 export let routeTo: (path: string) => void;
+
+export let getUpdater: () => Subject<string> | undefined;
 
 export class Router extends scope(LitElement) {
   @property({type: String}) auth = '/login';
@@ -13,6 +16,7 @@ export class Router extends scope(LitElement) {
 
   routes: RoutePath[] = [];
   currentRoutePath?: RoutePath;
+  updater?: Subject<string>;
 
   updated(changes: Map<keyof Router, any>) {
     if (changes.has('path') && this.path) {
@@ -42,7 +46,13 @@ export class Router extends scope(LitElement) {
     }
 
     this.showRoute(winner);
+    this.updater?.next(winner.path);
     this.currentRoutePath = winner;
+  }
+
+  setupUpdate() {
+    this.updater = new Subject<string>();
+    getUpdater = () => this.updater;
   }
 
   connectedCallback() {
@@ -55,6 +65,7 @@ export class Router extends scope(LitElement) {
       this.selectWinner(await getWinnerRoute(this.routes, this.path));
     });
     routeTo = (path:string) => this.setPath(path);
+    this.setupUpdate();
     super.connectedCallback();
   }
 

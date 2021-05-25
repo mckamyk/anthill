@@ -5,7 +5,8 @@
   "author": "McKittrick Kaminski <mckittrick.kaminski@gmail.com>",
   "license": "MIT",
   "scripts": {
-    "start": "concurrently -c cyan,yellow -n webpack,hardhat \"webpack-cli s\" \"hardhat dev\"",
+    "start": "concurrently -c cyan,yellow -n webpack,hardhat \"webpack-cli s\" \"yarn chain\"",
+    "chain": "node --inspect -r ts-node/register node_modules/.bin/hardhat dev",
     "postinstall": "link-module-alias"
   },
   "_moduleAliases": {
@@ -17,6 +18,8 @@
   "dependencies": {
     "@open-wc/scoped-elements": "^1.3.3",
     "@uniswap/sdk": "^3.0.3",
+    "ethernal": "^0.7.4",
+    "hardhat-ethernal": "^0.3.2",
     "lit-element": "^2.4.0",
     "solc": "0.8.3",
     "typescript": "^4.2.4"
