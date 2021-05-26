@@ -1,9 +1,12 @@
+/* eslint-disable max-len */
 import {LitElement, html, css, property} from 'lit-element';
 import {ScopedElementsMixin as scope} from '@open-wc/scoped-elements';
 import {getContract, getMessage, getOwner, setMessage} from '#services/home';
+import Anthill from '#components/anthill';
 import Input from '#components/input';
 import Button from '#components/button';
 import Balances from './balances';
+import Card from '#components/card';
 
 export default class Home extends scope(LitElement) {
   @property({attribute: false}) owner: string = '';
@@ -35,7 +38,14 @@ export default class Home extends scope(LitElement) {
   render() {
     return html`
       <div class="wrapper">
-        <ah-balances></ah-balances>
+        <anthill-logo class="logo"></anthill-logo>
+        <card-el class="net">
+          <!-- remove max len -->
+          <span>Lorem quis aute proident aliquip pariatur amet dolore esse incididunt exercitation. Ullamco veniam ad occaecat nisi eu officia ad nulla Lorem id ullamco voluptate duis. Eiusmod excepteur nostrud ea ut cillum pariatur eu. Reprehenderit ullamco velit dolor fugiat sint sint sunt amet ea aliqua voluptate mollit. Aliqua mollit proident duis qui sunt laboris et eiusmod consectetur id adipisicing qui.</span>
+        </card-el>
+        <div class="balances">
+          <ah-balances></ah-balances>
+        </div>
       </div>
     `;
   }
@@ -47,18 +57,21 @@ export default class Home extends scope(LitElement) {
       display: flex;
       align-items: center;
       justify-content: center;
-      flex-flow: column nowrap;
+      flex-flow: row wrap;
     }
-    .updateMessage {
-      display: flex;
-      align-items: center;
-      height: 40px;
+    .wrapper > * {
+      flex-grow: 1;
+      flex-basis: 50%;
+      box-sizing: border-box;
+      max-height: 20%;
     }
-    .updateMessage > span {
-      margin-right: 10px;
+    .balances {
+      height: 60%;
+      max-height: unset;
     }
-    .button::part(wrapper) {
-      height: 40px;
+    .logo  {
+      height: 100%;
+      width: 100%;
     }
   `;
 
@@ -67,6 +80,8 @@ export default class Home extends scope(LitElement) {
       'ah-input': Input,
       'ah-button': Button,
       'ah-balances': Balances,
+      'anthill-logo': Anthill,
+      'card-el': Card,
     };
   }
 }

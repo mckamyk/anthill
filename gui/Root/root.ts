@@ -1,4 +1,4 @@
-import {LitElement, html, css} from 'lit-element';
+import {LitElement, html, css, TemplateResult} from 'lit-element';
 import {ScopedElementsMixin as scope} from '@open-wc/scoped-elements';
 
 import {Router, Route} from '../services/Router';
@@ -8,11 +8,18 @@ import NotFound from '../Views/notFound';
 import NavBar from '../Views/NavBar';
 import Home from '../Views/Home';
 import {Coins} from '../Views/Coins';
+import Box from '../Views/Anim/box';
+import Anthill from '#components/anthill';
 
 export interface View {
-  name: string,
-  acro: string,
+  name: string;
+  acro: string;
   path: string;
+  elementIcon?: {
+    element: any; // Lit Element import
+    scopeName: string;
+    render: TemplateResult;
+  }
 }
 
 export default class Root extends scope(LitElement) {
@@ -21,11 +28,21 @@ export default class Root extends scope(LitElement) {
       name: 'Home',
       acro: 'H',
       path: '/',
+      elementIcon: {
+        element: Anthill,
+        scopeName: 'anthill-logo',
+        render: html`<anthill-logo></anthill-logo>`,
+      },
     },
     {
       name: 'Coins',
       acro: 'C',
       path: '/coins',
+    },
+    {
+      name: 'Box',
+      acro: 'B',
+      path: '/box',
     },
   ]
 
@@ -40,6 +57,10 @@ export default class Root extends scope(LitElement) {
 
             <route-el route='/coins'>
               <coins-el></coins-el>
+            </route-el>
+
+            <route-el route='/box'>
+              <box-el></box-el>
             </route-el>
 
             <route-el route='/404'>
@@ -66,12 +87,14 @@ export default class Root extends scope(LitElement) {
       display: flex;
       flex-direction: column;
       align-items: center;
+      justify-content: space-around;
     }
     .body {
-      flex-grow: 1;
+      height: 80%;
+      width: 80%;
     }
     .nav {
-      margin-bottom: 30px;
+      height: 10%;
     }
   `;
 
@@ -84,6 +107,7 @@ export default class Root extends scope(LitElement) {
       'nav-bar': NavBar,
       'home-el': Home,
       'coins-el': Coins,
+      'box-el': Box,
     };
   }
 }

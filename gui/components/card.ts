@@ -1,4 +1,4 @@
-import { LitElement, html, css, property } from "lit-element";
+import {LitElement, html, css, property} from 'lit-element';
 import {colors} from '../styles/global';
 
 export default class Card extends LitElement {
@@ -7,7 +7,7 @@ export default class Card extends LitElement {
 
   render() {
     return html`
-      <div class="wrapper">
+      <div class="wrapper" part="wrapper">
         ${this.header ? html`
           <div part="header" class="header">
             <slot name="header"></slot>
@@ -33,8 +33,7 @@ export default class Card extends LitElement {
       --line: var(--line-color, var(--high));
     }
     .wrapper {
-      width: 100%;
-      height: 100%;
+      box-sizing: border-box;
       background: var(--bg-color);
       border-radius: 10px;
       padding: 10px;

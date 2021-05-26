@@ -9,13 +9,28 @@ export default class NavBar extends scope(LitElement) {
   @property({type: Array}) views: View[] = [];
   @property({attribute: false}) currentPath = '';
 
-  updated() {
+  updated(changes: Map<keyof NavBar, any>) {
     const updater = getUpdater();
     if (updater) {
       updater.subscribe({
         next: (path) => this.currentPath = path,
       });
     }
+    if (changes.has('views')) {
+      this.registerIconComponents();
+    }
+  }
+
+  registerIconComponents() {
+    const withIcons = this.views.filter((view) => view.elementIcon);
+    withIcons.forEach((view) => {
+      if (!view.elementIcon) return;
+
+      const {scopeName, element} = view.elementIcon;
+      if (!Object.keys(NavBar.scopedElements).includes(scopeName)) {
+        this.defineScopedElement(scopeName, element);
+      }
+    });
   }
 
   goTo(path: string) {
@@ -27,7 +42,10 @@ export default class NavBar extends scope(LitElement) {
   renderView(view: View) {
     return html`
       <div class="view ${this.currentPath === view.path ? 'active' : ''}" @click=${() => this.goTo(view.path)}>
-        ${view.acro}
+        ${view.elementIcon ?
+            view.elementIcon.render :
+            view.acro
+}
       </div>
     `;
   }
@@ -51,6 +69,7 @@ export default class NavBar extends scope(LitElement) {
 
   static styles = css`
     .wrapper {
+      height: 80px;
       position: relative;
       width: 100%;
       display: flex;
@@ -64,22 +83,27 @@ export default class NavBar extends scope(LitElement) {
       height: 100%;
       left: 0;
       position: absolute;
-      background-color: var(--low);
+      background-color: var(--medium);
       border-radius: 10px;
       opacity: 0.5;
       z-index: 1;
     }
     .view {
+      box-sizing: border-box;
       display: flex;
       justify-content: center;
-      height: 20px;
-      width: 20px;
+      height: 50px;
+      width: 50px;
       z-index: 2;
       background: var(--high);
-      padding: 10px;
       border-radius: 10px;
       opacity: 0.5;
+      padding: 5px;
       user-select: none;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: 2px solid transparent;
     }
     .view:not(:last-child) {
       margin-right: 10px;
@@ -89,7 +113,7 @@ export default class NavBar extends scope(LitElement) {
     }
     .view.active {
       opacity: 1;
-      background-color: var(--accent);
+      border: 2px solid var(--accent);
     }
   `;
 

@@ -4,7 +4,7 @@ import {HardhatUserConfig} from 'hardhat/config';
 import {HardhatNetworkHDAccountsUserConfig} from 'hardhat/types';
 import 'hardhat-typechain';
 import 'hardhat-watcher';
-import 'hardhat-ethernal';
+// import 'hardhat-ethernal';
 
 import {Home} from './gui/types';
 import fs from 'fs';
@@ -29,17 +29,17 @@ task('dev', 'Main development task', async (args, hre) => {
   const nodeProm = hre.run('node');
   const watchProm = hre.run('watch', {watcherTask: 'rebuild'});
 
-  const waitForEthernal = async () => {
-    return new Promise<void>((res, rej) => {
-      if (!hre.ethernal) {
-        setTimeout(waitForEthernal, 100);
-      } else {
-        res();
-      }
-    });
-  };
+  // const waitForEthernal = async () => {
+  //   return new Promise<void>((res, rej) => {
+  //     if (!hre.ethernal) {
+  //       setTimeout(waitForEthernal, 100);
+  //     } else {
+  //       res();
+  //     }
+  //   });
+  // };
 
-  await waitForEthernal();
+  // await waitForEthernal();
 
   // start series
   await hre.run('compile');
@@ -61,20 +61,22 @@ task('init', 'Initializes the contract state, and updates address reference', as
   const internalAccounts = await ethers.getSigners();
   await internalAccounts[0].sendTransaction({to: walletAddress, value: ethers.utils.parseEther('100')});
 
-  const HomeFactory = (await ethers.getContractFactory('Home')).connect(signer);
+  let HomeFactory = await ethers.getContractFactory('Home');
+  HomeFactory = HomeFactory.connect(signer);
+  console.log('deploying contract');
   const Home = await HomeFactory.deploy() as Home;
-  await hre.ethernal.push({
-    name: 'Home',
-    address: Home.address,
-  });
+  // await hre.ethernal.push({
+  //   name: 'Home',
+  //   address: Home.address,
+  // });
   const out = {address: Home.address};
   console.log(`Deployed Home to ${Home.address}`);
   fs.writeFileSync(path.join(__dirname, 'gui', 'address.json'), JSON.stringify(out));
 });
 
-extendEnvironment((hre) => {
-  hre.ethernalWorkspace = 'Hardhat';
-});
+// extendEnvironment((hre) => {
+//   hre.ethernalWorkspace = 'Hardhat';
+// });
 
 const config: Config = {
   solidity: '0.8.3',

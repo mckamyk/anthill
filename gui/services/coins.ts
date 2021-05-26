@@ -1,6 +1,6 @@
+import erc20Contracts from '@metamask/contract-metadata';
 import {BigNumber, Contract} from 'ethers';
-import {getDetails} from './ethers';
-import {getStablecoinTransactions} from './etherscan';
+import {getCons} from './ethers';
 
 export interface ICoin {
   address: string;
@@ -27,79 +27,67 @@ export const coins: ICoin[] = [
   },
 ];
 
-export const getAllStablecoinBalances = async () => {
-  const {signer} = getDetails();
-  const coins = await getStablecoinTransactions(await signer.getAddress());
-  const balances = coins.map((coin) => getStablecoinBalance(coin));
-  return Promise.all(balances);
+export const getAllBalances = async (targetAddress?: string) => {
+  const {signer} = getCons();
+  const checker = new Contract(checkerAddress, checkerAbi, signer);
+  const address = targetAddress || await signer.getAddress();
+  const tokens = Object.keys(erc20Contracts);
+
+  const balances = await checker.functions.balances([address], tokens.slice(1));
+  console.log(balances);
 };
 
-export const getStablecoinBalance = async (coin: ICoin): Promise<ICoinBalance> => {
-  const {signer} = getDetails();
-  const coinContract = new Contract(coin.address, stablecoinAbi, signer);
-  return {
-    name: coin.name,
-    balance: await coinContract.balanceOf(await signer.getAddress()),
-    coin,
-  };
-};
-
-export const stablecoinAbi = [
+const checkerAddress = '0xb1f8e55c7f64d203c1400b9d8555d050f94adf39';
+const checkerAbi = [
   {
-    'constant': true,
-    'inputs': [],
-    'name': 'name',
-    'outputs': [
-      {
-        'name': '',
-        'type': 'string',
-      },
-    ],
-    'payable': false,
-    'type': 'function',
+    'payable': true,
+    'stateMutability': 'payable',
+    'type': 'fallback',
   },
   {
     'constant': true,
-    'inputs': [],
-    'name': 'decimals',
+    'inputs': [
+      {
+        'name': 'user',
+        'type': 'address',
+      },
+      {
+        'name': 'token',
+        'type': 'address',
+      },
+    ],
+    'name': 'tokenBalance',
     'outputs': [
       {
         'name': '',
-        'type': 'uint8',
+        'type': 'uint256',
       },
     ],
     'payable': false,
+    'stateMutability': 'view',
     'type': 'function',
   },
   {
     'constant': true,
     'inputs': [
       {
-        'name': '_owner',
-        'type': 'address',
+        'name': 'users',
+        'type': 'address[]',
       },
-    ],
-    'name': 'balanceOf',
-    'outputs': [
       {
-        'name': 'balance',
-        'type': 'uint256',
+        'name': 'tokens',
+        'type': 'address[]',
       },
     ],
-    'payable': false,
-    'type': 'function',
-  },
-  {
-    'constant': true,
-    'inputs': [],
-    'name': 'symbol',
+    'name': 'balances',
     'outputs': [
       {
         'name': '',
-        'type': 'string',
+        'type': 'uint256[]',
       },
     ],
     'payable': false,
+    'stateMutability': 'view',
     'type': 'function',
   },
 ];

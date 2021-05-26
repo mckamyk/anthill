@@ -1,10 +1,10 @@
 import {LitElement, html, customElement, css} from 'lit-element';
-import { ScopedElementsMixin as scope } from "@open-wc/scoped-elements";
+import {ScopedElementsMixin as scope} from '@open-wc/scoped-elements';
 import {colors, font} from './styles/global';
 
 import './bootstrap';
 
-import Root from "./Root";
+import Root from './Root';
 
 @customElement('index-element')
 export default class IndexElement extends scope(LitElement) {
@@ -27,6 +27,6 @@ export default class IndexElement extends scope(LitElement) {
   static get scopedElements() {
     return {
       'root-el': Root,
-    }
+    };
   }
 }

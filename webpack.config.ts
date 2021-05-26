@@ -12,7 +12,7 @@ const config: Config = {
   entry: './gui/index.ts',
 
   plugins: [
-    new HtmlWebpackPlugin({ template: './gui/index.ejs' }),
+    new HtmlWebpackPlugin({template: './gui/index.ejs'}),
   ],
 
   devtool: 'inline-source-map',
@@ -20,7 +20,8 @@ const config: Config = {
     port: 9000,
     historyApiFallback: true,
     compress: true,
-    stats: 'minimal'
+    stats: 'minimal',
+    contentBase: './assets',
   },
 
   resolve: {
@@ -30,7 +31,8 @@ const config: Config = {
       '#services': path.resolve(__dirname, 'gui/services'),
       '#components': path.resolve(__dirname, 'gui/components'),
       '#contracts': path.resolve(__dirname, 'artifacts/contracts'),
-    }
+      '#assets': path.resolve(__dirname, 'assets'),
+    },
   },
 
   watchOptions: {
@@ -39,9 +41,10 @@ const config: Config = {
 
   module: {
     rules: [
-      { test: /\.ts$/, loader: 'ts-loader' },
-    ]
+      {test: /\.ts$/, loader: 'ts-loader'},
+      {test: /\.svg$/, type: 'asset/source'},
+    ],
   },
-}
+};
 
 export default config;
