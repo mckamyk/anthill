@@ -29,12 +29,11 @@ export default class Card extends LitElement {
 
   static styles = [colors, css`
     :host {
-      --bg-color: var(--color, var(--low));
       --line: var(--line-color, var(--high));
     }
     .wrapper {
       box-sizing: border-box;
-      background: var(--bg-color);
+      background: var(--low);
       border-radius: 10px;
       padding: 10px;
       display: flex;
@@ -60,6 +59,14 @@ export default class Card extends LitElement {
       display: flex;
       align-items: center;
       justify-content: center;
+    }
+    .body::-webkit-scrollbar {
+      background: transparent;
+      width: 10x;
+    }
+    .body::-webkit-scrollbar-thumb {
+      background-color: var(--high);
+      border-radius: 10px;
     }
   `];
 }

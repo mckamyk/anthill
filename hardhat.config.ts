@@ -1,14 +1,15 @@
 import {extendEnvironment, task} from 'hardhat/config';
+// import {task} from 'hardhat/config';
 import '@nomiclabs/hardhat-waffle';
 import {HardhatUserConfig} from 'hardhat/config';
 import {HardhatNetworkHDAccountsUserConfig} from 'hardhat/types';
 import 'hardhat-typechain';
 import 'hardhat-watcher';
-// import 'hardhat-ethernal';
+import 'hardhat-ethernal';
 
-import {Home} from './gui/types';
 import fs from 'fs';
 import path from 'path';
+import {Contract} from '@ethersproject/contracts';
 
 interface Config extends HardhatUserConfig {
   accounts?: HardhatNetworkHDAccountsUserConfig;
@@ -29,17 +30,17 @@ task('dev', 'Main development task', async (args, hre) => {
   const nodeProm = hre.run('node');
   const watchProm = hre.run('watch', {watcherTask: 'rebuild'});
 
-  // const waitForEthernal = async () => {
-  //   return new Promise<void>((res, rej) => {
-  //     if (!hre.ethernal) {
-  //       setTimeout(waitForEthernal, 100);
-  //     } else {
-  //       res();
-  //     }
-  //   });
-  // };
+  const waitForEthernal = async () => {
+    return new Promise<void>((res, rej) => {
+      if (!hre.ethernal) {
+        setTimeout(waitForEthernal, 100);
+      } else {
+        hre.ethernal.startListening().then(res);
+      }
+    });
+  };
 
-  // await waitForEthernal();
+  await waitForEthernal();
 
   // start series
   await hre.run('compile');
@@ -58,25 +59,42 @@ task('init', 'Initializes the contract state, and updates address reference', as
   });
 
   const signer = ethers.provider.getSigner(walletAddress);
-  const internalAccounts = await ethers.getSigners();
-  await internalAccounts[0].sendTransaction({to: walletAddress, value: ethers.utils.parseEther('100')});
+  if ((await signer.getBalance()).lt(ethers.utils.parseEther('100'))) {
+    const internalAccounts = await ethers.getSigners();
+    await internalAccounts[0].sendTransaction({to: walletAddress, value: ethers.utils.parseEther('100')});
+  }
 
-  let HomeFactory = await ethers.getContractFactory('Home');
-  HomeFactory = HomeFactory.connect(signer);
-  console.log('deploying contract');
-  const Home = await HomeFactory.deploy() as Home;
-  // await hre.ethernal.push({
-  //   name: 'Home',
-  //   address: Home.address,
-  // });
-  const out = {address: Home.address};
-  console.log(`Deployed Home to ${Home.address}`);
+  const HomeFactory = await ethers.getContractFactory('Home', signer);
+  const CheckerFactory = await ethers.getContractFactory('Checker', signer);
+
+  const deploys: Promise<Contract>[] = [
+    HomeFactory.deploy(),
+    CheckerFactory.deploy(),
+  ];
+  const [home, checker] = await Promise.all(deploys);
+
+  const ethernalPushes: Promise<void>[] = [
+    hre.ethernal.push({
+      name: 'Home',
+      address: home.address,
+    }),
+    hre.ethernal.push({
+      name: 'Checker',
+      address: checker.address,
+    }),
+  ];
+
+  const out = {address: home.address, checker: checker.address};
   fs.writeFileSync(path.join(__dirname, 'gui', 'address.json'), JSON.stringify(out));
+
+  await Promise.all(ethernalPushes);
 });
 
-// extendEnvironment((hre) => {
-//   hre.ethernalWorkspace = 'Hardhat';
-// });
+extendEnvironment((hre) => {
+  hre.ethernalWorkspace = 'Anthill';
+  hre.ethernalSync = true;
+  hre.ethernalTrace = true;
+});
 
 const config: Config = {
   solidity: '0.8.3',
@@ -85,6 +103,7 @@ const config: Config = {
       chainId: 14,
       forking: {
         url: 'https://eth-mainnet.alchemyapi.io/v2/V0nBEYPNRBYaZmLGh9psiWwTDwGEXlk7',
+        blockNumber: 12510005,
       },
     },
   },

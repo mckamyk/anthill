@@ -36,13 +36,18 @@ const config: Config = {
   },
 
   watchOptions: {
-    ignored: 'gui/types',
+    ignored: [
+      'gui/types',
+      'artifacts',
+      'cache',
+    ],
   },
 
   module: {
     rules: [
       {test: /\.ts$/, loader: 'ts-loader'},
       {test: /\.svg$/, type: 'asset/source'},
+      {test: [/\.png$/, /\.jpg$/], use: 'file-loader'},
     ],
   },
 };

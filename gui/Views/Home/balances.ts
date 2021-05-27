@@ -3,10 +3,9 @@ import {ScopedElementsMixin as scope} from '@open-wc/scoped-elements';
 import {getAllBalances, ICoinBalance} from '#services/coins';
 import {BigNumber} from '@ethersproject/bignumber';
 import {ethers} from 'ethers';
-import {until} from 'lit-html/directives/until';
 
-import {getValueOf} from '#services/uniswap';
 import Card from '#components/card';
+import IconLoader from '#components/iconLoader';
 
 export default class Balances extends scope(LitElement) {
   @property({attribute: false}) balances: ICoinBalance[] = [];
@@ -16,7 +15,7 @@ export default class Balances extends scope(LitElement) {
   }
 
   async updateBalances() {
-    getAllBalances();
+    getAllBalances().then((bals) => this.balances = bals);
   }
 
   formatBalance(bal: BigNumber) {
@@ -26,9 +25,9 @@ export default class Balances extends scope(LitElement) {
   renderCoin(coin: ICoinBalance) {
     return html`
       <div class="coin">
+        <icon-loader class="coinIcon" location=${coin.logo}></icon-loader>
         <span class="coinName">${coin.name}</span>
         <span class="coinBal">${this.formatBalance(coin.balance)}</span>
-        <span class="coinVal">${until(getValueOf(coin.coin), html`Loading...`)}</span>
       </div>
     `;
   }
@@ -48,15 +47,39 @@ export default class Balances extends scope(LitElement) {
       height: 100%;
       width: 100%;
     }
-    .card::part(wrapper){
+    .card::part(wrapper) {
       height: 100%;
       width: 100%;
+    }
+    .card::part(body) {
+      max-width: 100%;
+      display: block;
+      overflow-y: auto;
+    }
+    .coin {
+      box-sizing: border-box;
+      width: 100%;
+      display: flex;
+      border-bottom: 1px solid var(--accent);
+      align-items: center;
+    }
+    .coin > * {
+      padding: 5px;
+    }
+    .coinIcon::part(wrapper) {
+      width: 30px;
+      height: 30px;
+      padding: 5px;
+    }
+    .coinName {
+      flex-grow: 1;
     }
   `;
 
   static get scopedElements() {
     return {
       'card-el': Card,
+      'icon-loader': IconLoader,
     };
   }
 }
