@@ -2,21 +2,25 @@ import erc20Contracts, {ICoinContract} from '@metamask/contract-metadata';
 import {BigNumber, Contract} from 'ethers';
 import {getCons} from './ethers';
 import contractAddresses from '../address.json';
-import checkerAbi from '#contracts/CheckBalances.sol/Checker.json';
+import checkerAbi from '#contracts/Checker.sol/Checker.json';
 import {Checker} from '../types/Checker';
 
 export interface ICoin extends ICoinContract {
   address: string;
 }
 
-export interface ICoinBalance extends ICoin{
+export interface ICoinBalance extends ICoin {
   balance: BigNumber;
   error?: boolean;
 }
 
-export const getAllBalances = async (targetAddress?: string): Promise<ICoinBalance[]> => {
+export interface ICoinBalancePrice extends ICoinBalance {
+  price: BigNumber;
+}
+
+export const getAllBalances = async (targetAddress?: string): Promise<ICoinBalancePrice[]> => {
   const {signer} = getCons();
-  const checker = new Contract(contractAddresses.checker, checkerAbi.abi as any, signer) as Checker;
+  const checker = new Contract(contractAddresses.checker, checkerAbi.abi, signer) as Checker;
   const address = targetAddress || await signer.getAddress();
 
   const coinsToSelect = ['DAI', 'aWETH'];
@@ -31,10 +35,16 @@ export const getAllBalances = async (targetAddress?: string): Promise<ICoinBalan
   });
   selected.push(...extra);
   const tokens = selected.map((coin) => coin.address);
-  const balances = await checker.getBalances(address, tokens);
+  const balances = await checker.getBalancePrices(address, tokens, '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2');
 
-  return balances.map(({addr, balance, error}) => {
+  return balances.map(({addr, balance, error, price}) => {
     const coin = erc20Contracts[addr];
-    return {address: addr, balance, error, ...coin};
+    return {
+      address: addr,
+      balance,
+      error,
+      price,
+      ...coin,
+    };
   });
 };

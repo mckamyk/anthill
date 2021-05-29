@@ -1,6 +1,6 @@
 import {LitElement, html, css, property} from 'lit-element';
 import {ScopedElementsMixin as scope} from '@open-wc/scoped-elements';
-import {getAllBalances, ICoinBalance} from '#services/coins';
+import {getAllBalances, ICoinBalancePrice} from '#services/coins';
 import {BigNumber} from '@ethersproject/bignumber';
 import {ethers} from 'ethers';
 
@@ -8,7 +8,7 @@ import Card from '#components/card';
 import IconLoader from '#components/iconLoader';
 
 export default class Balances extends scope(LitElement) {
-  @property({attribute: false}) balances: ICoinBalance[] = [];
+  @property({attribute: false}) balances: ICoinBalancePrice[] = [];
 
   firstUpdated() {
     this.updateBalances();
@@ -22,12 +22,13 @@ export default class Balances extends scope(LitElement) {
     return ethers.utils.formatEther(bal);
   }
 
-  renderCoin(coin: ICoinBalance) {
+  renderCoin(coin: ICoinBalancePrice) {
     return html`
       <div class="coin">
         <icon-loader class="coinIcon" location=${coin.logo}></icon-loader>
         <span class="coinName">${coin.name}</span>
         <span class="coinBal">${this.formatBalance(coin.balance)}</span>
+        <span class="coinPrice">${coin.price}</span>
       </div>
     `;
   }

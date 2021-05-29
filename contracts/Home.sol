@@ -1,4 +1,4 @@
-//SPDX-License-Identifier: Unlicense
+//SPDX-License-Identifier: Unlicensed
 pragma solidity ^0.8.3;
 
 import "hardhat/console.sol";
@@ -10,7 +10,6 @@ contract Home {
   event MessageUpdated(string message);
 
   constructor() {
-    console.log("Creating Home with owner %s", msg.sender);
     owner = msg.sender;
     message = 'Hello';
   }

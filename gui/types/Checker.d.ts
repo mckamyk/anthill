@@ -11,6 +11,7 @@ import {
   PopulatedTransaction,
   Contract,
   ContractTransaction,
+  Overrides,
   CallOverrides,
 } from "ethers";
 import { BytesLike } from "@ethersproject/bytes";
@@ -20,16 +21,52 @@ import { TypedEventFilter, TypedEvent, TypedListener } from "./commons";
 
 interface CheckerInterface extends ethers.utils.Interface {
   functions: {
+    "UniswapFactoryAddress()": FunctionFragment;
+    "checkPrice(address,address)": FunctionFragment;
+    "getBalancePrices(address,address[],address)": FunctionFragment;
     "getBalances(address,address[])": FunctionFragment;
+    "manager()": FunctionFragment;
+    "setUniswapFactory(address)": FunctionFragment;
   };
 
+  encodeFunctionData(
+    functionFragment: "UniswapFactoryAddress",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "checkPrice",
+    values: [string, string]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "getBalancePrices",
+    values: [string, string[], string]
+  ): string;
   encodeFunctionData(
     functionFragment: "getBalances",
     values: [string, string[]]
   ): string;
+  encodeFunctionData(functionFragment: "manager", values?: undefined): string;
+  encodeFunctionData(
+    functionFragment: "setUniswapFactory",
+    values: [string]
+  ): string;
 
   decodeFunctionResult(
+    functionFragment: "UniswapFactoryAddress",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(functionFragment: "checkPrice", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "getBalancePrices",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
     functionFragment: "getBalances",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(functionFragment: "manager", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "setUniswapFactory",
     data: BytesLike
   ): Result;
 
@@ -80,6 +117,54 @@ export class Checker extends Contract {
   interface: CheckerInterface;
 
   functions: {
+    UniswapFactoryAddress(overrides?: CallOverrides): Promise<[string]>;
+
+    "UniswapFactoryAddress()"(overrides?: CallOverrides): Promise<[string]>;
+
+    checkPrice(
+      base: string,
+      token: string,
+      overrides?: CallOverrides
+    ): Promise<[BigNumber] & { price: BigNumber }>;
+
+    "checkPrice(address,address)"(
+      base: string,
+      token: string,
+      overrides?: CallOverrides
+    ): Promise<[BigNumber] & { price: BigNumber }>;
+
+    getBalancePrices(
+      user: string,
+      coins: string[],
+      priceBase: string,
+      overrides?: CallOverrides
+    ): Promise<
+      [
+        ([string, BigNumber, BigNumber, boolean] & {
+          addr: string;
+          balance: BigNumber;
+          price: BigNumber;
+          error: boolean;
+        })[]
+      ]
+    >;
+
+    "getBalancePrices(address,address[],address)"(
+      user: string,
+      coins: string[],
+      priceBase: string,
+      overrides?: CallOverrides
+    ): Promise<
+      [
+        ([string, BigNumber, BigNumber, boolean] & {
+          addr: string;
+          balance: BigNumber;
+          price: BigNumber;
+          error: boolean;
+        })[]
+      ]
+    >;
+
     getBalances(
       user: string,
       coins: string[],
@@ -107,7 +192,65 @@ export class Checker extends Contract {
         })[]
       ]
     >;
+
+    manager(overrides?: CallOverrides): Promise<[string]>;
+
+    "manager()"(overrides?: CallOverrides): Promise<[string]>;
+
+    setUniswapFactory(
+      uniswapFactor: string,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
+
+    "setUniswapFactory(address)"(
+      uniswapFactor: string,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
   };
+
+  UniswapFactoryAddress(overrides?: CallOverrides): Promise<string>;
+
+  "UniswapFactoryAddress()"(overrides?: CallOverrides): Promise<string>;
+
+  checkPrice(
+    base: string,
+    token: string,
+    overrides?: CallOverrides
+  ): Promise<BigNumber>;
+
+  "checkPrice(address,address)"(
+    base: string,
+    token: string,
+    overrides?: CallOverrides
+  ): Promise<BigNumber>;
+
+  getBalancePrices(
+    user: string,
+    coins: string[],
+    priceBase: string,
+    overrides?: CallOverrides
+  ): Promise<
+    ([string, BigNumber, BigNumber, boolean] & {
+      addr: string;
+      balance: BigNumber;
+      price: BigNumber;
+      error: boolean;
+    })[]
+  >;
+
+  "getBalancePrices(address,address[],address)"(
+    user: string,
+    coins: string[],
+    priceBase: string,
+    overrides?: CallOverrides
+  ): Promise<
+    ([string, BigNumber, BigNumber, boolean] & {
+      addr: string;
+      balance: BigNumber;
+      price: BigNumber;
+      error: boolean;
+    })[]
+  >;
 
   getBalances(
     user: string,
@@ -133,7 +276,65 @@ export class Checker extends Contract {
     })[]
   >;
 
+  manager(overrides?: CallOverrides): Promise<string>;
+
+  "manager()"(overrides?: CallOverrides): Promise<string>;
+
+  setUniswapFactory(
+    uniswapFactor: string,
+    overrides?: Overrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
+
+  "setUniswapFactory(address)"(
+    uniswapFactor: string,
+    overrides?: Overrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
+
   callStatic: {
+    UniswapFactoryAddress(overrides?: CallOverrides): Promise<string>;
+
+    "UniswapFactoryAddress()"(overrides?: CallOverrides): Promise<string>;
+
+    checkPrice(
+      base: string,
+      token: string,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
+    "checkPrice(address,address)"(
+      base: string,
+      token: string,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
+    getBalancePrices(
+      user: string,
+      coins: string[],
+      priceBase: string,
+      overrides?: CallOverrides
+    ): Promise<
+      ([string, BigNumber, BigNumber, boolean] & {
+        addr: string;
+        balance: BigNumber;
+        price: BigNumber;
+        error: boolean;
+      })[]
+    >;
+
+    "getBalancePrices(address,address[],address)"(
+      user: string,
+      coins: string[],
+      priceBase: string,
+      overrides?: CallOverrides
+    ): Promise<
+      ([string, BigNumber, BigNumber, boolean] & {
+        addr: string;
+        balance: BigNumber;
+        price: BigNumber;
+        error: boolean;
+      })[]
+    >;
+
     getBalances(
       user: string,
       coins: string[],
@@ -157,11 +358,55 @@ export class Checker extends Contract {
         error: boolean;
       })[]
     >;
+
+    manager(overrides?: CallOverrides): Promise<string>;
+
+    "manager()"(overrides?: CallOverrides): Promise<string>;
+
+    setUniswapFactory(
+      uniswapFactor: string,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
+    "setUniswapFactory(address)"(
+      uniswapFactor: string,
+      overrides?: CallOverrides
+    ): Promise<void>;
   };
 
   filters: {};
 
   estimateGas: {
+    UniswapFactoryAddress(overrides?: CallOverrides): Promise<BigNumber>;
+
+    "UniswapFactoryAddress()"(overrides?: CallOverrides): Promise<BigNumber>;
+
+    checkPrice(
+      base: string,
+      token: string,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
+    "checkPrice(address,address)"(
+      base: string,
+      token: string,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
+    getBalancePrices(
+      user: string,
+      coins: string[],
+      priceBase: string,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
+    "getBalancePrices(address,address[],address)"(
+      user: string,
+      coins: string[],
+      priceBase: string,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
     getBalances(
       user: string,
       coins: string[],
@@ -173,9 +418,57 @@ export class Checker extends Contract {
       coins: string[],
       overrides?: CallOverrides
     ): Promise<BigNumber>;
+
+    manager(overrides?: CallOverrides): Promise<BigNumber>;
+
+    "manager()"(overrides?: CallOverrides): Promise<BigNumber>;
+
+    setUniswapFactory(
+      uniswapFactor: string,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
+
+    "setUniswapFactory(address)"(
+      uniswapFactor: string,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
   };
 
   populateTransaction: {
+    UniswapFactoryAddress(
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    "UniswapFactoryAddress()"(
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    checkPrice(
+      base: string,
+      token: string,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    "checkPrice(address,address)"(
+      base: string,
+      token: string,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    getBalancePrices(
+      user: string,
+      coins: string[],
+      priceBase: string,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    "getBalancePrices(address,address[],address)"(
+      user: string,
+      coins: string[],
+      priceBase: string,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
     getBalances(
       user: string,
       coins: string[],
@@ -186,6 +479,20 @@ export class Checker extends Contract {
       user: string,
       coins: string[],
       overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    manager(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    "manager()"(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    setUniswapFactory(
+      uniswapFactor: string,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
+
+    "setUniswapFactory(address)"(
+      uniswapFactor: string,
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
   };
 }

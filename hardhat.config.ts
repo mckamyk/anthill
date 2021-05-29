@@ -69,7 +69,7 @@ task('init', 'Initializes the contract state, and updates address reference', as
 
   const deploys: Promise<Contract>[] = [
     HomeFactory.deploy(),
-    CheckerFactory.deploy(),
+    CheckerFactory.deploy('0x5C69bEe701ef814a2B6a3EDD4B1652CB9cc5aA6f'),
   ];
   const [home, checker] = await Promise.all(deploys);
 

@@ -2,13 +2,13 @@
 /* tslint:disable */
 /* eslint-disable */
 export type { IUniswapV2Factory } from "./IUniswapV2Factory";
+export type { IUniswapV2Pair } from "./IUniswapV2Pair";
 export type { Checker } from "./Checker";
 export type { Token } from "./Token";
-export type { Greeter } from "./Greeter";
 export type { Home } from "./Home";
 
 export { IUniswapV2Factory__factory } from "./factories/IUniswapV2Factory__factory";
+export { IUniswapV2Pair__factory } from "./factories/IUniswapV2Pair__factory";
 export { Checker__factory } from "./factories/Checker__factory";
 export { Token__factory } from "./factories/Token__factory";
-export { Greeter__factory } from "./factories/Greeter__factory";
 export { Home__factory } from "./factories/Home__factory";
