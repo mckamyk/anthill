@@ -52,11 +52,6 @@ task('dev', 'Main development task', async (args, hre) => {
 task('init', 'Initializes the contract state, and updates address reference', async (args, hre) => {
   const {ethers} = hre;
 
-  hre.network.provider.request({
-    method: 'hardhat_setLogMethods',
-    params: [false],
-  });
-
   const walletAddress = '0xAB82910FE0a55E4Aa680DBc08bae45113566c309';
   hre.network.provider.request({
     method: 'hardhat_impersonateAccount',
@@ -99,6 +94,11 @@ extendEnvironment((hre) => {
   hre.ethernalWorkspace = 'Anthill';
   hre.ethernalSync = true;
   hre.ethernalTrace = true;
+
+  hre.network.provider.request({
+    method: 'hardhat_setLogMethods',
+    params: [false],
+  });
 });
 
 const config: Config = {
