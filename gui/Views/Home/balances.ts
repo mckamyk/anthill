@@ -6,6 +6,30 @@ import {ethers} from 'ethers';
 
 import Card from '#components/card';
 import IconLoader from '#components/iconLoader';
+import Selector, {ItemIcon} from '#components/selector';
+import {addresses, icons} from '#services/constants';
+
+interface Demoninator {
+  item: ItemIcon,
+  address: string;
+}
+
+const denoms: Demoninator[] = [
+  {
+    item: {
+      icon: icons.eth,
+      item: 'Eth',
+    },
+    address: addresses.weth,
+  },
+  {
+    item: {
+      icon: icons.dai,
+      item: 'Dai',
+    },
+    address: addresses.dai,
+  },
+];
 
 export default class Balances extends scope(LitElement) {
   @property({attribute: false}) balances: ICoinBalancePrice[] = [];
@@ -15,7 +39,9 @@ export default class Balances extends scope(LitElement) {
   }
 
   async updateBalances() {
-    getAllBalances().then((bals) => this.balances = bals);
+    getAllBalances().then((bals) => {
+      this.balances = bals.filter((coin) => !coin.balance.eq(0));
+    });
   }
 
   formatBalance(bal: BigNumber) {
@@ -25,10 +51,10 @@ export default class Balances extends scope(LitElement) {
   renderCoin(coin: ICoinBalancePrice) {
     return html`
       <div class="coin">
-        <icon-loader class="coinIcon" location=${coin.logo}></icon-loader>
+        <icon-loader metamask class="coinIcon" location=${coin.logo}></icon-loader>
         <span class="coinName">${coin.name}</span>
         <span class="coinBal">${this.formatBalance(coin.balance)}</span>
-        <span class="coinPrice">${coin.price}</span>
+        <span class="coinPrice ${coin.error ? 'error' : ''}">${coin.price}</span>
       </div>
     `;
   }
@@ -36,7 +62,11 @@ export default class Balances extends scope(LitElement) {
   render() {
     return html`
       <div class="wrapper">
-        <card-el class="card">
+        <card-el class="card" header>
+          <div slot="header" class="header">
+            <span>Token Balances</span>
+            <selector-el class="selector" .value=${denoms[0].item} .items=${denoms.map((d) => d.item)} none="Select Base..."></selector-el>
+          </div>
           ${this.balances.map((coin) => this.renderCoin(coin))}
         </card-el>
       </div>
@@ -47,6 +77,23 @@ export default class Balances extends scope(LitElement) {
     .wrapper {
       height: 100%;
       width: 100%;
+    }
+    .header {
+      padding: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      width: 100%;
+    }
+    .selector {
+      position: absolute;
+      right: 20px;
+      width: 100px;
+      height: 50%;
+      top: 0;
+      bottom: 0;
+      box-sizing: border-box;
     }
     .card::part(wrapper) {
       height: 100%;
@@ -73,7 +120,17 @@ export default class Balances extends scope(LitElement) {
       padding: 5px;
     }
     .coinName {
-      flex-grow: 1;
+      flex-basis: 50%;
+    }
+    .coinBal {
+      flex-basis: 25%;
+    }
+    .coinPrice {
+      flex-basis: 25%;
+    }
+    .coinPrice.error {
+      border: 1px solid red;
+      box-sizing: border-box;
     }
   `;
 
@@ -81,6 +138,7 @@ export default class Balances extends scope(LitElement) {
     return {
       'card-el': Card,
       'icon-loader': IconLoader,
+      'selector-el': Selector,
     };
   }
 }

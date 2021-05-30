@@ -47,7 +47,7 @@ const config: Config = {
     rules: [
       {test: /\.ts$/, loader: 'ts-loader'},
       {test: /\.svg$/, type: 'asset/source'},
-      {test: [/\.png$/, /\.jpg$/], use: 'file-loader'},
+      {test: [/\.ico$/, /\.png$/, /\.jpg$/], use: 'file-loader'},
     ],
   },
 };

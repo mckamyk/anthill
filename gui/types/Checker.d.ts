@@ -27,6 +27,7 @@ interface CheckerInterface extends ethers.utils.Interface {
     "getBalances(address,address[])": FunctionFragment;
     "manager()": FunctionFragment;
     "setUniswapFactory(address)": FunctionFragment;
+    "whatever()": FunctionFragment;
   };
 
   encodeFunctionData(
@@ -50,6 +51,7 @@ interface CheckerInterface extends ethers.utils.Interface {
     functionFragment: "setUniswapFactory",
     values: [string]
   ): string;
+  encodeFunctionData(functionFragment: "whatever", values?: undefined): string;
 
   decodeFunctionResult(
     functionFragment: "UniswapFactoryAddress",
@@ -69,6 +71,7 @@ interface CheckerInterface extends ethers.utils.Interface {
     functionFragment: "setUniswapFactory",
     data: BytesLike
   ): Result;
+  decodeFunctionResult(functionFragment: "whatever", data: BytesLike): Result;
 
   events: {};
 }
@@ -206,6 +209,14 @@ export class Checker extends Contract {
       uniswapFactor: string,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
+
+    whatever(
+      overrides?: CallOverrides
+    ): Promise<[string, string] & { t0: string; t1: string }>;
+
+    "whatever()"(
+      overrides?: CallOverrides
+    ): Promise<[string, string] & { t0: string; t1: string }>;
   };
 
   UniswapFactoryAddress(overrides?: CallOverrides): Promise<string>;
@@ -290,6 +301,14 @@ export class Checker extends Contract {
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
+  whatever(
+    overrides?: CallOverrides
+  ): Promise<[string, string] & { t0: string; t1: string }>;
+
+  "whatever()"(
+    overrides?: CallOverrides
+  ): Promise<[string, string] & { t0: string; t1: string }>;
+
   callStatic: {
     UniswapFactoryAddress(overrides?: CallOverrides): Promise<string>;
 
@@ -372,6 +391,14 @@ export class Checker extends Contract {
       uniswapFactor: string,
       overrides?: CallOverrides
     ): Promise<void>;
+
+    whatever(
+      overrides?: CallOverrides
+    ): Promise<[string, string] & { t0: string; t1: string }>;
+
+    "whatever()"(
+      overrides?: CallOverrides
+    ): Promise<[string, string] & { t0: string; t1: string }>;
   };
 
   filters: {};
@@ -432,6 +459,10 @@ export class Checker extends Contract {
       uniswapFactor: string,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
+
+    whatever(overrides?: CallOverrides): Promise<BigNumber>;
+
+    "whatever()"(overrides?: CallOverrides): Promise<BigNumber>;
   };
 
   populateTransaction: {
@@ -494,5 +525,9 @@ export class Checker extends Contract {
       uniswapFactor: string,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
+
+    whatever(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    "whatever()"(overrides?: CallOverrides): Promise<PopulatedTransaction>;
   };
 }

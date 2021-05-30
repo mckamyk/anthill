@@ -79,6 +79,13 @@ contract Checker {
     (uint baseRes, uint tokenRes, ) = pair.getReserves();
     require(baseRes > 0 && tokenRes > 0, "Bad liquidity.");
 
-    return tokenRes/baseRes;
+    return baseRes/tokenRes;
+  }
+
+  function whatever() public view returns(address t0, address t1) {
+    IUniswapV2Pair pair = IUniswapV2Pair(0xA478c2975Ab1Ea89e8196811F51A7B7Ade33eB11);
+    address token0 = pair.token0();
+    address token1 = pair.token1();
+    return (token0, token1);
   }
 }

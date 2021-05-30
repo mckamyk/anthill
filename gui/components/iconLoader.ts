@@ -4,12 +4,27 @@ import {until} from 'lit-html/directives/until';
 
 export default class IconLoader extends LitElement {
   @property({type: String}) location!: string;
+  @property({type: Boolean}) metamask = false;
 
   @property({attribute: false}) data!: Promise<string>;
 
   connectedCallback() {
     super.connectedCallback();
-    this.data = import(`@metamask/contract-metadata/images/${this.location}`).then((asset) => asset.default );
+    this.getIcon();
+  }
+
+  getIcon() {
+    if (this.metamask) {
+      this.data = import(`@metamask/contract-metadata/images/${this.location}`).then((asset) => asset.default );
+    } else {
+      this.data = import(`#assets/${this.location}`).then((asset) => asset.default);
+    }
+  }
+
+  updated(changes: Map<keyof IconLoader, any>) {
+    if (changes.has('location')) {
+      this.getIcon();
+    }
   }
 
   async renderIcon(data: Promise<string>) {
