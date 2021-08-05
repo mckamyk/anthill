@@ -2,7 +2,7 @@ import {extendEnvironment, task} from 'hardhat/config';
 // import {task} from 'hardhat/config';
 import '@nomiclabs/hardhat-waffle';
 import {HardhatUserConfig} from 'hardhat/config';
-import {HardhatNetworkHDAccountsUserConfig} from 'hardhat/types';
+import {HardhatNetworkHDAccountsUserConfig, HardhatRuntimeEnvironment} from 'hardhat/types';
 import 'hardhat-typechain';
 import 'hardhat-watcher';
 import 'hardhat-ethernal';
@@ -10,6 +10,8 @@ import 'hardhat-ethernal';
 import fs from 'fs';
 import path from 'path';
 import {Contract} from '@ethersproject/contracts';
+
+let useEthernal = false;
 
 interface Config extends HardhatUserConfig {
   accounts?: HardhatNetworkHDAccountsUserConfig;
@@ -25,7 +27,12 @@ interface Config extends HardhatUserConfig {
   }
 }
 
-task('dev', 'Main development task', async (args, hre) => {
+task('ethernal', 'Run Main dev server with ethernal', async (args, hre) => {
+  useEthernal = true;
+  await hre.run('dev');
+});
+
+task('dev', 'Main development task', async (args, hre: HardhatRuntimeEnvironment) => {
   // start parallel
   const nodeProm = hre.run('node');
   const watchProm = hre.run('watch', {watcherTask: 'rebuild'});
@@ -40,7 +47,7 @@ task('dev', 'Main development task', async (args, hre) => {
     });
   };
 
-  await waitForEthernal();
+  if (useEthernal) await waitForEthernal();
 
   // start series
   await hre.run('compile');
@@ -49,7 +56,7 @@ task('dev', 'Main development task', async (args, hre) => {
   await Promise.all([nodeProm, watchProm]);
 });
 
-task('init', 'Initializes the contract state, and updates address reference', async (args, hre) => {
+task('init', 'Initializes the contract state, and updates address reference', async (args, hre: HardhatRuntimeEnvironment) => {
   const {ethers} = hre;
 
   const walletAddress = '0xAB82910FE0a55E4Aa680DBc08bae45113566c309';
@@ -69,20 +76,24 @@ task('init', 'Initializes the contract state, and updates address reference', as
 
   const deploys: Promise<Contract>[] = [
     HomeFactory.deploy(),
-    CheckerFactory.deploy('0x5C69bEe701ef814a2B6a3EDD4B1652CB9cc5aA6f'),
+    CheckerFactory.deploy('0x47Fb2585D2C56Fe188D0E6ec628a38b74fCeeeDf'),
   ];
   const [home, checker] = await Promise.all(deploys);
 
-  const ethernalPushes: Promise<void>[] = [
-    hre.ethernal.push({
-      name: 'Home',
-      address: home.address,
-    }),
-    hre.ethernal.push({
-      name: 'Checker',
-      address: checker.address,
-    }),
-  ];
+  const ethernalPushes: Promise<void>[] = [];
+
+  if (useEthernal) {
+    ethernalPushes.push(...[
+      hre.ethernal.push({
+        name: 'Home',
+        address: home.address,
+      }),
+      hre.ethernal.push({
+        name: 'Checker',
+        address: checker.address,
+      }),
+    ]);
+  }
 
   const out = {address: home.address, checker: checker.address};
   fs.writeFileSync(path.join(__dirname, 'gui', 'address.json'), JSON.stringify(out));
@@ -90,10 +101,12 @@ task('init', 'Initializes the contract state, and updates address reference', as
   await Promise.all(ethernalPushes);
 });
 
-extendEnvironment((hre) => {
-  hre.ethernalWorkspace = 'Anthill';
-  hre.ethernalSync = true;
-  hre.ethernalTrace = true;
+extendEnvironment((hre: HardhatRuntimeEnvironment) => {
+  if (useEthernal) {
+    hre.ethernalWorkspace = 'Anthill';
+    hre.ethernalSync = true;
+    hre.ethernalTrace = true;
+  }
 });
 
 const config: Config = {
@@ -103,7 +116,10 @@ const config: Config = {
       chainId: 14,
       forking: {
         url: 'https://eth-mainnet.alchemyapi.io/v2/V0nBEYPNRBYaZmLGh9psiWwTDwGEXlk7',
-        blockNumber: 12510005,
+        blockNumber: 12962914,
+      },
+      logging: {
+        omitMethods: ['eth_chainId', 'eth_blockNumber', 'eth_getFilterChanges'],
       },
     },
   },

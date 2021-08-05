@@ -5,6 +5,8 @@ import contractAddresses from '../address.json';
 import checkerAbi from '#contracts/Checker.sol/Checker.json';
 import {Checker} from '../types/Checker';
 
+const ETH_ADDRESS = '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE';
+
 export interface ICoin extends ICoinContract {
   address: string;
 }
@@ -23,9 +25,9 @@ export const getAllBalances = async (targetAddress?: string): Promise<ICoinBalan
   const checker = new Contract(contractAddresses.checker, checkerAbi.abi, signer) as Checker;
   const address = targetAddress || await signer.getAddress();
 
-  const coinsToSelect = ['DAI', 'aWETH'];
+  const coinsToSelect = ['DAI', 'ETH'];
   const selected = Object.entries(erc20Contracts).filter(([address, coin]) => {
-    if (coinsToSelect.includes(coin.symbol)) return true;
+    return coinsToSelect.includes(coin.symbol);
   }).map(([address, coin]) => {
     return {address, ...coin} as ICoin;
   });
@@ -35,7 +37,7 @@ export const getAllBalances = async (targetAddress?: string): Promise<ICoinBalan
   });
   selected.push(...extra);
   const tokens = selected.map((coin) => coin.address);
-  const balances = await checker.getBalancePrices(address, tokens, '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2');
+  const balances = await checker.getBalancePrices(address, tokens);
 
   return balances.map(({addr, balance, error, price}) => {
     const coin = erc20Contracts[addr];
