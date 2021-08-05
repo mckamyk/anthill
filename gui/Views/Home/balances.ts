@@ -15,7 +15,7 @@ export default class Balances extends scope(LitElement) {
   }
 
   async updateBalances() {
-    getAllBalances().then((bals) => this.balances = bals);
+    this.balances = await getAllBalances();
   }
 
   formatBalance(bal: BigNumber) {

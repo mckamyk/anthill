@@ -119,6 +119,7 @@ const config: Config = {
         blockNumber: 12962914,
       },
       logging: {
+        level: 'minimal',
         omitMethods: ['eth_chainId', 'eth_blockNumber', 'eth_getFilterChanges'],
       },
     },

@@ -1,24 +1,36 @@
 //SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.3;
 import "hardhat/console.sol";
-import '@uniswap/v2-core/contracts/interfaces/IUniswapV2Factory.sol';
-import '@uniswap/v2-core/contracts/interfaces/IUniswapV2Pair.sol';
+
+struct PriceData {
+  uint80 roundId;
+  int price;
+  uint startedAt;
+  uint timeStamp;
+  uint80 answeredInRound;
+}
+
+abstract contract FeedRegistry {
+  function latestRoundData(address base, address quote) virtual public view returns (uint80 roundId, int price, uint startedAt, uint timeStamp, uint80 answeredInRound);
+}
 
 abstract contract Token {
   function balanceOf(address) virtual public view returns (uint);
 }
 
 contract Checker {
-  address public UniswapFactoryAddress;
-  address public manager;
+  FeedRegistry internal registry;
+  address manager;
 
-  constructor(address _uniswapAddress) {
-    UniswapFactoryAddress = _uniswapAddress;
+  address public constant USD = address(840);
+
+  constructor(address _chainLinkRegistryAddress) {
+    registry = FeedRegistry(_chainLinkRegistryAddress);
     manager = msg.sender;
-  }
-
-  function setUniswapFactory(address uniswapFactor) public {
-    UniswapFactoryAddress = uniswapFactor;
+    console.log("Created registry at %s", _chainLinkRegistryAddress);
+    console.log("foo");
+    console.log("bar");
+    console.log("bin");
   }
 
   struct BalanceResponse {
@@ -49,11 +61,11 @@ contract Checker {
   struct BalancePriceResponse {
     address addr;
     uint balance;
-    uint price;
+    int price;
     bool error;
   }
 
-  function getBalancePrices(address user, address[] calldata coins, address priceBase) public view returns (BalancePriceResponse[] memory) {
+  function getBalancePrices(address user, address[] calldata coins) public view returns (BalancePriceResponse[] memory) {
     BalanceResponse[] memory bals = getBalances(user, coins);
     BalancePriceResponse[] memory prices = new BalancePriceResponse[](bals.length);
 
@@ -62,23 +74,22 @@ contract Checker {
         addr: bals[i].addr,
         balance: bals[i].balance,
         error: bals[i].error,
-        price: checkPrice(priceBase, bals[i].addr)
+        price: 0
       });
+      if (bals[i].balance > 0) {
+        prices[i].price = checkPrice(bals[i].addr);
+      }
     }
 
     return prices;
   }
 
-  function checkPrice(address base, address token) public view returns (uint price) {
-    address pairAddress = IUniswapV2Factory(UniswapFactoryAddress).getPair(base, token);
-    if (pairAddress == address(0)) {
-      console.log("Pair %s and %s doesn't exist.", base, token);
+  function checkPrice(address token) public view returns (int) {
+    try registry.latestRoundData(USD, token) returns (uint80 /*roundId*/, int price, uint /*startedAt*/, uint /*timeStamp*/, uint80 /*answeredInRound*/) {
+      return price;
+    } catch (bytes memory) {
+      console.log("error getting price of %s", token);
       return 0;
     }
-    IUniswapV2Pair pair = IUniswapV2Pair(pairAddress);
-    (uint baseRes, uint tokenRes, ) = pair.getReserves();
-    require(baseRes > 0 && tokenRes > 0, "Bad liquidity.");
-
-    return tokenRes/baseRes;
   }
 }
