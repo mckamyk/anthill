@@ -99,12 +99,15 @@ export class Checker extends Contract {
 
     "USD()"(overrides?: CallOverrides): Promise<[string]>;
 
-    checkPrice(token: string, overrides?: CallOverrides): Promise<[BigNumber]>;
+    checkPrice(
+      token: string,
+      overrides?: CallOverrides
+    ): Promise<[BigNumber] & { formattedPrice: BigNumber }>;
 
     "checkPrice(address)"(
       token: string,
       overrides?: CallOverrides
-    ): Promise<[BigNumber]>;
+    ): Promise<[BigNumber] & { formattedPrice: BigNumber }>;
 
     getBalancePrices(
       user: string,

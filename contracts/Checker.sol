@@ -12,15 +12,18 @@ struct PriceData {
 
 abstract contract FeedRegistry {
   function latestRoundData(address base, address quote) virtual public view returns (uint80 roundId, int price, uint startedAt, uint timeStamp, uint80 answeredInRound);
+  function decimals(address base, address quote) virtual public view returns (uint8 decs);
 }
 
 abstract contract Token {
   function balanceOf(address) virtual public view returns (uint);
 }
 
+
 contract Checker {
   FeedRegistry internal registry;
   address manager;
+  address ETH_ADDRESS = 0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE;
 
   address public constant USD = address(840);
 
@@ -28,9 +31,6 @@ contract Checker {
     registry = FeedRegistry(_chainLinkRegistryAddress);
     manager = msg.sender;
     console.log("Created registry at %s", _chainLinkRegistryAddress);
-    console.log("foo");
-    console.log("bar");
-    console.log("bin");
   }
 
   struct BalanceResponse {
@@ -43,14 +43,22 @@ contract Checker {
     BalanceResponse[] memory balances = new BalanceResponse[](coins.length);
 
     for (uint i = 0; i < coins.length; i++) {
-      if (coins[i] != address(0x0)) {
+      if (coins[i] != address(0x0) ) {
         address coin = coins[i];
 
-        Token t = Token(coin);
-        try t.balanceOf(user) returns (uint bal) {
-          balances[i] = BalanceResponse({ addr: coin, balance: bal, error: false});
-        } catch (bytes memory /*error*/ ) {
-          balances[i] = BalanceResponse({ addr: coin, balance: 0, error: true});
+        if (coins[i] == ETH_ADDRESS) {
+          balances[i] = BalanceResponse({addr: coin, balance: user.balance, error: false});
+        }
+
+        uint size;
+        assembly { size := extcodesize(coin)}
+        if (size > 0) {
+          Token t = Token(coin);
+          try t.balanceOf(user) returns (uint bal) {
+            balances[i] = BalanceResponse({ addr: coin, balance: bal, error: false});
+          } catch (bytes memory /*error*/ ) {
+            balances[i] = BalanceResponse({ addr: coin, balance: 0, error: true});
+          }
         }
       }
     }
@@ -84,12 +92,16 @@ contract Checker {
     return prices;
   }
 
-  function checkPrice(address token) public view returns (int) {
-    try registry.latestRoundData(USD, token) returns (uint80 /*roundId*/, int price, uint /*startedAt*/, uint /*timeStamp*/, uint80 /*answeredInRound*/) {
-      return price;
+  function checkPrice(address token) public view returns (int formattedPrice) {
+    try registry.decimals(token, USD) returns (uint8 decimals) {
+      try registry.latestRoundData(token, USD) returns (uint80, int price, uint, uint, uint80) {
+        return price / int(10**decimals);
+      } catch (bytes memory) {
+        console.log("error getting price of %s", token);
+        return 0;
+      }
     } catch (bytes memory) {
-      console.log("error getting price of %s", token);
-      return 0;
+      console.log("error getting decimals of %s", token);
     }
   }
 }

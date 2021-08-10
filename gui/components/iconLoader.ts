@@ -1,19 +1,29 @@
 import {LitElement, html, css, property} from 'lit-element';
 import {unsafeSVG} from 'lit-html/directives/unsafe-svg';
 import {until} from 'lit-html/directives/until';
+// @ts-ignore
+import ethSvg from '#assets/eth.svg';
 
 export default class IconLoader extends LitElement {
   @property({type: String}) location!: string;
+  @property({attribute: false}) isSvg!: boolean;
 
   @property({attribute: false}) data!: Promise<string>;
 
   connectedCallback() {
     super.connectedCallback();
-    this.data = import(`@metamask/contract-metadata/images/${this.location}`).then((asset) => asset.default );
+    if (this.location === '#eth') {
+      this.data = ethSvg;
+      this.isSvg = true;
+    } else {
+      this.data = import(`@metamask/contract-metadata/images/${this.location}`)
+          .then((asset) => asset.default);
+      this.isSvg = this.location.includes('svg');
+    }
   }
 
   async renderIcon(data: Promise<string>) {
-    if (this.location.includes('svg')) {
+    if (this.isSvg) {
       const svg = await data;
       return html`${unsafeSVG(svg)}`;
     } else {

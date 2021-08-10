@@ -1,17 +1,13 @@
-import {extendEnvironment, task} from 'hardhat/config';
-// import {task} from 'hardhat/config';
+import {task} from 'hardhat/config';
 import '@nomiclabs/hardhat-waffle';
 import {HardhatUserConfig} from 'hardhat/config';
 import {HardhatNetworkHDAccountsUserConfig, HardhatRuntimeEnvironment} from 'hardhat/types';
 import 'hardhat-typechain';
 import 'hardhat-watcher';
-import 'hardhat-ethernal';
 
 import fs from 'fs';
 import path from 'path';
 import {Contract} from '@ethersproject/contracts';
-
-let useEthernal = false;
 
 interface Config extends HardhatUserConfig {
   accounts?: HardhatNetworkHDAccountsUserConfig;
@@ -27,33 +23,16 @@ interface Config extends HardhatUserConfig {
   }
 }
 
-task('ethernal', 'Run Main dev server with ethernal', async (args, hre) => {
-  useEthernal = true;
-  await hre.run('dev');
-});
-
 task('dev', 'Main development task', async (args, hre: HardhatRuntimeEnvironment) => {
   // start parallel
-  const nodeProm = hre.run('node');
   const watchProm = hre.run('watch', {watcherTask: 'rebuild'});
 
-  const waitForEthernal = async () => {
-    return new Promise<void>((res, rej) => {
-      if (!hre.ethernal) {
-        setTimeout(waitForEthernal, 100);
-      } else {
-        hre.ethernal.startListening().then(res);
-      }
-    });
-  };
-
-  if (useEthernal) await waitForEthernal();
-
   // start series
+  hre.run('node');
   await hre.run('compile');
   await hre.run('init');
 
-  await Promise.all([nodeProm, watchProm]);
+  await Promise.all([watchProm]);
 });
 
 task('init', 'Initializes the contract state, and updates address reference', async (args, hre: HardhatRuntimeEnvironment) => {
@@ -66,9 +45,18 @@ task('init', 'Initializes the contract state, and updates address reference', as
   });
 
   const signer = ethers.provider.getSigner(walletAddress);
-  if ((await signer.getBalance()).lt(ethers.utils.parseEther('100'))) {
+  const balance = await signer.getBalance();
+  console.log('Main Wallet: ' + ethers.utils.formatEther(balance));
+  if (balance.lt(ethers.utils.parseEther('100'))) {
     const internalAccounts = await ethers.getSigners();
-    await internalAccounts[0].sendTransaction({to: walletAddress, value: ethers.utils.parseEther('100')});
+    const internalBalance = await internalAccounts[0].getBalance();
+    if (internalBalance.gte(100)) {
+      console.log('refilling main wallet');
+      console.log();
+      console.log('Internal Account: ' + ethers.utils.formatEther(await internalAccounts[0].getBalance()));
+      console.log();
+      await internalAccounts[0].sendTransaction({to: walletAddress, value: ethers.utils.parseEther('100')});
+    };
   }
 
   const HomeFactory = await ethers.getContractFactory('Home', signer);
@@ -80,33 +68,8 @@ task('init', 'Initializes the contract state, and updates address reference', as
   ];
   const [home, checker] = await Promise.all(deploys);
 
-  const ethernalPushes: Promise<void>[] = [];
-
-  if (useEthernal) {
-    ethernalPushes.push(...[
-      hre.ethernal.push({
-        name: 'Home',
-        address: home.address,
-      }),
-      hre.ethernal.push({
-        name: 'Checker',
-        address: checker.address,
-      }),
-    ]);
-  }
-
   const out = {address: home.address, checker: checker.address};
   fs.writeFileSync(path.join(__dirname, 'gui', 'address.json'), JSON.stringify(out));
-
-  await Promise.all(ethernalPushes);
-});
-
-extendEnvironment((hre: HardhatRuntimeEnvironment) => {
-  if (useEthernal) {
-    hre.ethernalWorkspace = 'Anthill';
-    hre.ethernalSync = true;
-    hre.ethernalTrace = true;
-  }
 });
 
 const config: Config = {
@@ -116,10 +79,9 @@ const config: Config = {
       chainId: 14,
       forking: {
         url: 'https://eth-mainnet.alchemyapi.io/v2/V0nBEYPNRBYaZmLGh9psiWwTDwGEXlk7',
-        blockNumber: 12962914,
+        blockNumber: 13000429,
       },
       logging: {
-        level: 'minimal',
         omitMethods: ['eth_chainId', 'eth_blockNumber', 'eth_getFilterChanges'],
       },
     },

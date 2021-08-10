@@ -5,7 +5,14 @@ import contractAddresses from '../address.json';
 import checkerAbi from '#contracts/Checker.sol/Checker.json';
 import {Checker} from '../types/Checker';
 
-const ETH_ADDRESS = '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE';
+const ETH_COIN: ICoin = {
+  address: '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE',
+  name: 'Ether',
+  decimals: 18,
+  symbol: 'ETH',
+  logo: '#eth',
+  erc20: true,
+};
 
 export interface ICoin extends ICoinContract {
   address: string;
@@ -23,7 +30,7 @@ export interface ICoinBalancePrice extends ICoinBalance {
 export const getAllBalances = async (targetAddress?: string): Promise<ICoinBalancePrice[]> => {
   const {signer} = getCons();
   const checker = new Contract(contractAddresses.checker, checkerAbi.abi, signer) as Checker;
-  const address = targetAddress || await signer.getAddress();
+  const tgtAddress = targetAddress || await signer.getAddress();
 
   const coinsToSelect = ['DAI', 'ETH'];
   const selected = Object.entries(erc20Contracts).filter(([address, coin]) => {
@@ -32,15 +39,21 @@ export const getAllBalances = async (targetAddress?: string): Promise<ICoinBalan
     return {address, ...coin} as ICoin;
   });
 
+  selected.push(ETH_COIN);
+
   const extra = Object.entries(erc20Contracts).slice(0, 10).map(([address, coin]) => {
     return {address, ...coin} as ICoin;
   });
   selected.push(...extra);
   const tokens = selected.map((coin) => coin.address);
-  const balances = await checker.getBalancePrices(address, tokens);
+  const balances = await checker.getBalancePrices(tgtAddress, tokens);
 
   return balances.map(({addr, balance, error, price}) => {
-    const coin = erc20Contracts[addr];
+    let coin: ICoinContract;
+    coin = erc20Contracts[addr];
+    if (addr === ETH_COIN.address) {
+      coin = ETH_COIN;
+    }
     return {
       address: addr,
       balance,

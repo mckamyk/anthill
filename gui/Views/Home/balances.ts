@@ -19,7 +19,17 @@ export default class Balances extends scope(LitElement) {
   }
 
   formatBalance(bal: BigNumber) {
-    return ethers.utils.formatEther(bal);
+    return Number(ethers.utils.formatEther(bal)).toLocaleString();
+  }
+
+  formatPrice(price: BigNumber) {
+    return Number(price.toString()).toLocaleString();
+  }
+
+  calculateValue(coin: ICoinBalancePrice) {
+    const dec = BigNumber.from('0x1').mul(10).pow(coin.decimals);
+    const bal = coin.balance.div(dec);
+    return bal.mul(coin.price).toNumber().toLocaleString();
   }
 
   renderCoin(coin: ICoinBalancePrice) {
@@ -28,7 +38,8 @@ export default class Balances extends scope(LitElement) {
         <icon-loader class="coinIcon" location=${coin.logo}></icon-loader>
         <span class="coinName">${coin.name}</span>
         <span class="coinBal">${this.formatBalance(coin.balance)}</span>
-        <span class="coinPrice">${coin.price}</span>
+        <span class="coinPrice">${this.formatPrice(coin.price)}</span>
+        <span class="coinValue">${this.calculateValue(coin)}</span>
       </div>
     `;
   }

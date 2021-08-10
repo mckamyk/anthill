@@ -30,6 +30,30 @@ const _abi = [
         type: "address",
       },
     ],
+    name: "decimals",
+    outputs: [
+      {
+        internalType: "uint8",
+        name: "decs",
+        type: "uint8",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "address",
+        name: "base",
+        type: "address",
+      },
+      {
+        internalType: "address",
+        name: "quote",
+        type: "address",
+      },
+    ],
     name: "latestRoundData",
     outputs: [
       {

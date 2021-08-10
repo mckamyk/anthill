@@ -20,14 +20,20 @@ import { TypedEventFilter, TypedEvent, TypedListener } from "./commons";
 
 interface FeedRegistryInterface extends ethers.utils.Interface {
   functions: {
+    "decimals(address,address)": FunctionFragment;
     "latestRoundData(address,address)": FunctionFragment;
   };
 
+  encodeFunctionData(
+    functionFragment: "decimals",
+    values: [string, string]
+  ): string;
   encodeFunctionData(
     functionFragment: "latestRoundData",
     values: [string, string]
   ): string;
 
+  decodeFunctionResult(functionFragment: "decimals", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "latestRoundData",
     data: BytesLike
@@ -80,6 +86,18 @@ export class FeedRegistry extends Contract {
   interface: FeedRegistryInterface;
 
   functions: {
+    decimals(
+      base: string,
+      quote: string,
+      overrides?: CallOverrides
+    ): Promise<[number] & { decs: number }>;
+
+    "decimals(address,address)"(
+      base: string,
+      quote: string,
+      overrides?: CallOverrides
+    ): Promise<[number] & { decs: number }>;
+
     latestRoundData(
       base: string,
       quote: string,
@@ -108,6 +126,18 @@ export class FeedRegistry extends Contract {
       }
     >;
   };
+
+  decimals(
+    base: string,
+    quote: string,
+    overrides?: CallOverrides
+  ): Promise<number>;
+
+  "decimals(address,address)"(
+    base: string,
+    quote: string,
+    overrides?: CallOverrides
+  ): Promise<number>;
 
   latestRoundData(
     base: string,
@@ -138,6 +168,18 @@ export class FeedRegistry extends Contract {
   >;
 
   callStatic: {
+    decimals(
+      base: string,
+      quote: string,
+      overrides?: CallOverrides
+    ): Promise<number>;
+
+    "decimals(address,address)"(
+      base: string,
+      quote: string,
+      overrides?: CallOverrides
+    ): Promise<number>;
+
     latestRoundData(
       base: string,
       quote: string,
@@ -170,6 +212,18 @@ export class FeedRegistry extends Contract {
   filters: {};
 
   estimateGas: {
+    decimals(
+      base: string,
+      quote: string,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
+    "decimals(address,address)"(
+      base: string,
+      quote: string,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
     latestRoundData(
       base: string,
       quote: string,
@@ -184,6 +238,18 @@ export class FeedRegistry extends Contract {
   };
 
   populateTransaction: {
+    decimals(
+      base: string,
+      quote: string,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    "decimals(address,address)"(
+      base: string,
+      quote: string,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
     latestRoundData(
       base: string,
       quote: string,
