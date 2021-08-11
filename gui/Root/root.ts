@@ -10,6 +10,7 @@ import Home from '../Views/Home';
 import {Coins} from '../Views/Coins';
 import Box from '../Views/Anim/box';
 import Anthill from '#components/anthill';
+import Header from '../Views/Header';
 
 export interface View {
   name: string;
@@ -49,6 +50,7 @@ export default class Root extends scope(LitElement) {
   render() {
     return html`
       <div class="wrapper">
+        <header-el></header-el>
         <div class="body">
           <router-el>
             <route-el route='/'>
@@ -87,7 +89,7 @@ export default class Root extends scope(LitElement) {
       display: flex;
       flex-direction: column;
       align-items: center;
-      justify-content: space-around;
+      justify-content: space-between;
     }
     .body {
       height: 80%;
@@ -95,11 +97,13 @@ export default class Root extends scope(LitElement) {
     }
     .nav {
       height: 10%;
+      margin-bottom: 30px;
     }
   `;
 
   static get scopedElements() {
     return {
+      'header-el': Header,
       'button-el': Button,
       'router-el': Router,
       'route-el': Route,

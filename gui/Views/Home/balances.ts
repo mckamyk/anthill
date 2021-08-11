@@ -38,8 +38,8 @@ export default class Balances extends scope(LitElement) {
         <icon-loader class="coinIcon" location=${coin.logo}></icon-loader>
         <span class="coinName">${coin.name}</span>
         <span class="coinBal">${this.formatBalance(coin.balance)}</span>
-        <span class="coinPrice">${this.formatPrice(coin.price)}</span>
-        <span class="coinValue">${this.calculateValue(coin)}</span>
+        <span class="coinPrice">$${this.formatPrice(coin.price)}</span>
+        <span class="coinValue">$${this.calculateValue(coin)}</span>
       </div>
     `;
   }
@@ -77,11 +77,17 @@ export default class Balances extends scope(LitElement) {
     }
     .coin > * {
       padding: 5px;
+      flex-basis: 10%;
+    }
+    .coinIcon {
+      flex-basis: 30px;
     }
     .coinIcon::part(wrapper) {
-      width: 30px;
       height: 30px;
       padding: 5px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
     }
     .coinName {
       flex-grow: 1;

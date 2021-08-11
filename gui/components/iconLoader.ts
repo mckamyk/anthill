@@ -3,6 +3,8 @@ import {unsafeSVG} from 'lit-html/directives/unsafe-svg';
 import {until} from 'lit-html/directives/until';
 // @ts-ignore
 import ethSvg from '#assets/eth.svg';
+// @ts-ignore
+import stableSvg from '#assets/usdc.svg';
 
 export default class IconLoader extends LitElement {
   @property({type: String}) location!: string;
@@ -14,6 +16,9 @@ export default class IconLoader extends LitElement {
     super.connectedCallback();
     if (this.location === '#eth') {
       this.data = ethSvg;
+      this.isSvg = true;
+    } else if (this.location === '#stable') {
+      this.data = stableSvg;
       this.isSvg = true;
     } else {
       this.data = import(`@metamask/contract-metadata/images/${this.location}`)
