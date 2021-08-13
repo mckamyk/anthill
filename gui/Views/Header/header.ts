@@ -20,34 +20,34 @@ export default class Header extends scope(LitElement) {
     getBalances([...STABLE_COINS, ETH_COIN]).then((bals) => this.balances = bals );
   }
 
-  getStableCoinBalance() {
-    if (!this.balances) return;
+  getStableCoinBalance(): string {
+    if (!this.balances) return '0';
 
     const stableAddresses = STABLE_COINS.map((coin) => coin.address);
     const total: BigNumber = this.balances.filter((coin) => stableAddresses.includes(coin.address))
         .map((coin) => coin.balance)
         .reduce((prevBal, currBal) => {
           return prevBal.add(currBal);
-        });
+        }, BigNumber.from('0x0'));
 
     return total.toNumber().toLocaleString();
   }
 
-  getEthBalance() {
-    if (!this.balances) return;
+  getEthBalance(): BigNumber {
+    if (!this.balances) return BigNumber.from('0x0');
 
     const eth = this.balances.find((coin) => coin.address === ETH_COIN.address);
-    if (!eth) return;
+    if (!eth) return BigNumber.from('0x0');
 
     return eth.balance.div(BigNumber.from('0xa').pow(eth.decimals));
   }
 
-  getEthValue() {
+  getEthValue(): BigNumber {
     const bal = this.getEthBalance();
-    if (!bal || !this.balances) return;
+    if (!bal || !this.balances) return BigNumber.from('0x0');
 
     const eth = this.balances.find((coin) => coin.address === ETH_COIN.address);
-    if (!eth) return;
+    if (!eth) return BigNumber.from('0x0');
 
     return bal.mul(eth.price);
   }
@@ -73,7 +73,7 @@ export default class Header extends scope(LitElement) {
         </div>
         <div class="stable">
           <icon-loader class="icon" location="#stable"></icon-loader>
-          <span class="bal">${this.getStableCoinBalance()}</span>
+          <span class="bal">$ ${this.getStableCoinBalance()}</span>
         </div>
       </div>
     `;
@@ -87,13 +87,25 @@ export default class Header extends scope(LitElement) {
       align-items: center;
       justify-content: flex-end;
       background-color: var(--low);
-      padding: 10px 0;
+      padding: .25rem;
     }
     .icon::part(wrapper) {
       height: 30px;
       width: 30px;
     }
     .eth, .stable {
+      display: flex;
+      align-items: center;
+      min-width: 5rem;
+    }
+    .stable > .bal {
+      margin-left: .5rem;
+    }
+    .eth {
+      margin-right: .5rem;
+    }
+    .div {
+      margin: 0 0.5rem;
     }
   `];
 
