@@ -1,14 +1,13 @@
-import Providers from "./provider"
-import Web3ButtonClient from "@/components/Web3Button"
+import Siwe from '@/components/Siwe'
+import Account from "@/components/Account"
 
 export default function Home() {
   return (
     <main className="">
-      <Providers>
-        <div>hi</div>
+      <div>hi</div>
 
-        <Web3ButtonClient />
-      </Providers>
+      <Account />
+      <Siwe />
     </main>
   )
 }
