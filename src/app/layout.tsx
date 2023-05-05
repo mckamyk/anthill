@@ -10,7 +10,7 @@ export const metadata = {
 }
 
 const getSession = async () => {
-  const session = await fetch('http://localhost:3000/api/auth/session', {next: { revalidate: 0}});
+  const session = await fetch('http://localhost:3000/api/auth/session');
   return session.json()
 }
 

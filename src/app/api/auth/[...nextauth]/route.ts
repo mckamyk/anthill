@@ -1,6 +1,5 @@
 import NextAuth from 'next-auth';
 import CredentialsProvider from 'next-auth/providers/credentials'
-import {getCsrfToken} from 'next-auth/react'
 import {SiweMessage} from 'siwe';
 
 const handler = NextAuth({
@@ -21,37 +20,31 @@ const handler = NextAuth({
 			},
 			async authorize(credentials, req) {
 				try {
-					if (!credentials) return null
-					const siwe = new SiweMessage(JSON.parse(credentials.message))
-					const domain = process.env.DOMAIN
-					if (siwe.domain !== domain) {
-						return null
-					}
+					if (!credentials) return null;
+					const siwe = new SiweMessage(JSON.parse(credentials.message || "{}"))
+					const nextauthUrl = new URL(process.env.NEXTAUTH_URL!);
 
-					console.log(req.headers)
-					const csrf = await getCsrfToken({req});
-					console.log(siwe.nonce, csrf)
-					if (siwe.nonce !== csrf) {
-						return null
-					}
 
-					const result = await siwe.verify({signature: credentials?.signature || ''})
-					console.log(result)
+					const result = await siwe.verify({
+						signature: credentials.signature,
+						domain: nextauthUrl.host,
+					})
+
 					if (result.success) {
-						return {
-							id: siwe.address
-						}
-					}
+						return {id: siwe.address}
+					} 
+					console.log(result)
 					return null
-				} catch {
+				} catch (e) {
+					console.log(e)
 					return null
 				}
 			}
 		})
 	],
 	callbacks: {
-		async session({session}) {
-			return session
+		async session({session, token}) {
+			return {...session, user: {name: token.sub}}
 		}
 	}
 })

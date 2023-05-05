@@ -21,7 +21,7 @@ export default function Providers({children, session}: {children: React.ReactNod
 	return (
 		<>
 			<WagmiConfig client={wagmiClient}>
-				<SessionProvider session={session}>
+				<SessionProvider session={session} >
 					{children}
 				</SessionProvider>
 			</WagmiConfig>
