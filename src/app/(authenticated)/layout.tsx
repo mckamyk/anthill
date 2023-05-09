@@ -4,6 +4,7 @@ import Providers from '../provider'
 import {redirect} from 'next/navigation'
 import { getServerSession } from 'next-auth'
 import { authOptions } from '../api/auth/[...nextauth]/route'
+import HeaderBar from './headerBar'
 
 const inter = Inter({ subsets: ['latin'] })
 
@@ -25,7 +26,8 @@ export default async function RootLayout({
 
   return (
     <html lang="en">
-      <body className={inter.className}>
+      <body className={`${inter.className} from-slate-950 to-slate-800 bg-gradient-to-tr w-screen h-screen`}>
+        <HeaderBar />
         <Providers session={session}>
           {children}
         </Providers>
