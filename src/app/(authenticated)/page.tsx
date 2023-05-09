@@ -1,5 +1,5 @@
-import Siwe from '@/components/Siwe'
 import Account from "@/components/Account"
+import LogOut from "@/components/logOut"
 
 export default function Home() {
   return (
@@ -7,7 +7,7 @@ export default function Home() {
       <div>hi</div>
 
       <Account />
-      <Siwe />
+      <LogOut />
     </main>
   )
 }

@@ -1,8 +1,8 @@
-import NextAuth from 'next-auth';
+import NextAuth, { NextAuthOptions } from 'next-auth';
 import CredentialsProvider from 'next-auth/providers/credentials'
 import {SiweMessage} from 'siwe';
 
-const handler = NextAuth({
+export const authOptions: NextAuthOptions = {
 	providers: [
 		CredentialsProvider({
 			name: 'Ethereum',
@@ -44,9 +44,13 @@ const handler = NextAuth({
 	],
 	callbacks: {
 		async session({session, token}) {
-			return {...session, user: {name: token.sub}}
-		}
+			return {expires: session.expires, address: token.sub}
+		},
+	},
+	pages: {
+		signIn: '/login'
 	}
-})
+}
 
+const handler = NextAuth(authOptions)
 export {handler as GET, handler as POST}
