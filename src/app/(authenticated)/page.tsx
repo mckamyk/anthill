@@ -1,35 +1,29 @@
-interface CreateData {
-  name: string
-  desc: string
+import { getServerSession } from "next-auth";
+import CreateRegsitry from "./createRegistry";
+import { getRegistries, getRegsitryFactoryAddress } from "./test"
+import { authOptions } from "../api/auth/[...nextauth]/route";
+
+interface Session {
+  address: `0x${string}`
 }
 
-export default function Home() {
-  const createOrg = async (data: FormData) => {
-    "use server"
-    console.log("Create Org: ", data.get('name'), data.get('desc'))
-  }
+export default async function Home() {
+  const session = await getServerSession<any, Session>(authOptions);
+  if (!session) throw new Error("No session");
+  const registries = await getRegistries(session.address);
+  const factoryAddress = await getRegsitryFactoryAddress();
 
   return (
     <div className="flex h-full items-center justify-center">
       <div className="p-2 rounded-lg shadow-lg bg-slate-700">
-        <div>Get started by creating an Orginaization</div>
-
-        <div className="">
-          <form action={createOrg}>
-            <div className="mb-2">
-              <label className="text-sm pl-2">Name of Org</label>
-              <input className="form-input bg-slate-800 block rounded-md w-full" name="name"></input>
+        {
+          registries.length === 0 ? <CreateRegsitry factoryAddress={factoryAddress} /> : (
+            <div>
+              Registries:
+              <div>{registries.map(r => <div key={r.name}>{r.name}</div>)}</div>
             </div>
-            <div className="mb-2">
-              <label className="text-sm pl-2">Description of Org</label>
-              <input className="form-input bg-slate-800 block rounded-md w-full" name="desc"></input>
-            </div>
-
-            <div className="flex justify-center">
-              <button className="p-2 bg-sky-600 rounded-md active:bg-sky-800 transition-colors">Create</button>
-            </div>
-          </form>
-        </div>
+          )
+        }
       </div>
     </div>
   )

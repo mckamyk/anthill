@@ -1,6 +1,6 @@
 import NextAuth, { NextAuthOptions } from 'next-auth';
 import CredentialsProvider from 'next-auth/providers/credentials'
-import {SiweMessage} from 'siwe';
+import { SiweMessage } from 'siwe';
 
 export const authOptions: NextAuthOptions = {
 	providers: [
@@ -31,8 +31,8 @@ export const authOptions: NextAuthOptions = {
 					})
 
 					if (result.success) {
-						return {id: siwe.address}
-					} 
+						return { id: siwe.address }
+					}
 					console.log(result)
 					return null
 				} catch (e) {
@@ -43,14 +43,14 @@ export const authOptions: NextAuthOptions = {
 		})
 	],
 	callbacks: {
-		async session({session, token}) {
-			return {expires: session.expires, address: token.sub}
+		async session({ session, token }) {
+			return { expires: session.expires, address: token.sub }
 		},
 	},
 	pages: {
 		signIn: '/login'
-	}
+	},
 }
 
 const handler = NextAuth(authOptions)
-export {handler as GET, handler as POST}
+export { handler as GET, handler as POST }

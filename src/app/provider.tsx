@@ -1,32 +1,45 @@
 'use client'
-import { EthereumClient, w3mConnectors, w3mProvider } from "@web3modal/ethereum"
-import { Web3Modal } from "@web3modal/react"
 import React from "react"
-import { configureChains, createClient, WagmiConfig } from "wagmi"
-import {hardhat} from 'wagmi/chains'
+import { configureChains, createConfig, WagmiConfig } from "wagmi"
+import {foundry} from 'wagmi/chains'
+import {publicProvider} from 'wagmi/providers/public';
 import { SessionProvider } from "next-auth/react"
+import {WalletConnectConnector} from 'wagmi/connectors/walletConnect'
+import {MetaMaskConnector} from 'wagmi/connectors/metaMask'
+import {CoinbaseWalletConnector} from 'wagmi/connectors/coinbaseWallet';
 
-const chains = [hardhat]
 const projectId = '6c1e4f11c58134a472f755910a5249d6'
 
-const {provider} = configureChains(chains, [w3mProvider({projectId})])
-const wagmiClient = createClient({
+const {chains, publicClient, webSocketPublicClient} = configureChains([foundry], [publicProvider()])
+const config = createConfig({
 	autoConnect: true,
-	connectors: w3mConnectors({projectId, version: 1, chains}),
-	provider
+	connectors: [
+		new MetaMaskConnector({chains}),
+		new CoinbaseWalletConnector({
+			chains, 
+			options: {
+				appName: "Anthill"
+			}
+		}),
+		new WalletConnectConnector({
+			chains,
+			options: {
+				projectId
+			}
+		})
+	],
+	publicClient,
+	webSocketPublicClient
 })
-const ethereumClient = new EthereumClient(wagmiClient, chains);
 
 export default function Providers({children, session}: {children: React.ReactNode, session: any}) {
 	return (
 		<>
-			<WagmiConfig client={wagmiClient}>
+			<WagmiConfig config={config}>
 				<SessionProvider session={session} >
 					{children}
 				</SessionProvider>
 			</WagmiConfig>
-
-			<Web3Modal projectId={projectId} ethereumClient={ethereumClient} />
 		</>
 	)
 }

@@ -1,22 +1,17 @@
 'use client'
-import {useWeb3Modal, useWeb3ModalEvents} from '@web3modal/react'
-import { connect } from 'http2'
 import { getCsrfToken, signIn} from 'next-auth/react'
-import { useEffect } from 'react'
 import { SiweMessage } from 'siwe'
-import { useAccount, useSignMessage} from 'wagmi'
+import { useAccount, useConnect, useSignMessage} from 'wagmi'
 
 export default function SuperLoginButton() {
-	const {open} = useWeb3Modal()
 	const {address, isConnected, connector} = useAccount()
 	const {signMessageAsync} = useSignMessage()
-	useWeb3ModalEvents(evt => evt.name === 'ACCOUNT_CONNECTED' && handleLogin());
+	const {connect, connectors, error, isLoading, pendingConnector} = useConnect();
 
 	const handleClick = () => {
 		if (isConnected) {
 			handleLogin()
 		} else {
-			open()
 		}
 	}
 
