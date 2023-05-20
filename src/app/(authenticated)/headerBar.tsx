@@ -1,4 +1,3 @@
-import Web3ButtonClient from "@/components/Web3Button";
 import LogOut from "@/components/logOut";
 import { ReactNode } from "react";
 
@@ -9,6 +8,7 @@ export default function HeaderBar({children}: {children?: ReactNode}) {
 				<div className="text-lg font-extrabold">Anthill</div>
 				<div className="flex items-center gap-2">
 					{/* <Web3ButtonClient /> */}
+					<div></div>
 					<LogOut />
 				</div>
 			</div>

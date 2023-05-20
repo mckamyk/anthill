@@ -1,8 +1,6 @@
-import { getServerSession } from 'next-auth';
 import { registryRouterABI, registryFactoryABI, registryABI } from '../../generated'
-import { createWalletClient, http, createPublicClient, getContract } from 'viem';
+import { http, createPublicClient, getContract } from 'viem';
 import { foundry } from 'viem/chains';
-import { authOptions } from '../api/auth/[...nextauth]/route';
 
 type address = `0x${string}`;
 
@@ -20,7 +18,7 @@ const getRouter = async () => {
 
 	return getContract({
 		abi: registryRouterABI,
-		address: "0x610178dA211FEF7D417bC0e6FeD39F05609AD788",
+		address: "0xB7f8BC63BbcaD18155201308C8f3540b07f84F5e",
 		publicClient,
 	})
 }

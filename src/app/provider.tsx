@@ -1,12 +1,12 @@
 'use client'
-import React from "react"
-import { configureChains, createConfig, WagmiConfig } from "wagmi"
+import { configureChains, createConfig, useAccount, WagmiConfig, useNetwork, ConnectorData} from "wagmi"
 import {foundry} from 'wagmi/chains'
 import {publicProvider} from 'wagmi/providers/public';
-import { SessionProvider } from "next-auth/react"
+import { SessionProvider, useSession } from "next-auth/react"
 import {WalletConnectConnector} from 'wagmi/connectors/walletConnect'
 import {MetaMaskConnector} from 'wagmi/connectors/metaMask'
 import {CoinbaseWalletConnector} from 'wagmi/connectors/coinbaseWallet';
+import { useEffect } from "react";
 
 const projectId = '6c1e4f11c58134a472f755910a5249d6'
 
@@ -37,9 +37,42 @@ export default function Providers({children, session}: {children: React.ReactNod
 		<>
 			<WagmiConfig config={config}>
 				<SessionProvider session={session} >
-					{children}
+					<AccountManagement>
+						{children}
+					</AccountManagement>
 				</SessionProvider>
 			</WagmiConfig>
+		</>
+	)
+}
+
+const AccountManagement = ({children}: {children: React.ReactNode}) => {
+	const {connector} = useAccount();
+	const {data: session} = useSession();
+
+	useEffect(() => {
+		const handleConnectorUpdate = ({account, chain}: ConnectorData) => {
+			if (account) {
+				if (account !== session?.address) {
+					console.log("Unverified account, please resign.")
+				}
+			}
+			if (chain) {
+				if (chain.unsupported) {
+					console.log("This chain isn't supported yet.")
+				}
+			}
+		}
+
+		if (connector) connector.on('change', handleConnectorUpdate);
+
+		return () => connector?.off('change', handleConnectorUpdate);
+	}, [connector, session?.address]);
+
+
+	return (
+		<>
+			{children}
 		</>
 	)
 }
