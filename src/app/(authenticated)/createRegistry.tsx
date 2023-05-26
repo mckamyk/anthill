@@ -1,8 +1,6 @@
 "use client";
 import { useAccount, useContractWrite } from "wagmi";
-import { getRegsitryFactoryAddress } from "./test";
-import { getRegistryFactory, registryFactoryABI } from "../../generated";
-import { useEffect } from "react";
+import { registryFactoryABI } from "../../generated";
 
 export default function CreateRegsitry({factoryAddress}: {factoryAddress: `0x${string}`}) {
 	const { address } = useAccount();
@@ -15,8 +13,11 @@ export default function CreateRegsitry({factoryAddress}: {factoryAddress: `0x${s
 	const handleSubmit = async (f: FormData) => {
 		const name = f.get("name") as string;
 		if (!address) throw new Error("Wallet not connected")
-		const result = await writeAsync({ args: [name, [address], BigInt(1), BigInt(Math.floor(Math.random()*1000000))] })
-    alert(result);
+    try {
+      const result = await writeAsync({ args: [name, [address], BigInt(1), BigInt(Math.floor(Math.random()*1000000))] })
+    } catch (e) {
+      console.log(e);
+    }
 	}
 
 	return (

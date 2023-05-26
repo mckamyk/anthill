@@ -4,7 +4,7 @@ import Providers from '../provider'
 import {redirect} from 'next/navigation'
 import { getServerSession } from 'next-auth'
 import { authOptions } from '../api/auth/[...nextauth]/route'
-import HeaderBar from './headerBar'
+import HeaderBar from './(header)/headerBar'
 
 const inter = Inter({ subsets: ['latin'] })
 

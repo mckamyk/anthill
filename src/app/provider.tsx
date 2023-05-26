@@ -6,7 +6,8 @@ import { SessionProvider, useSession } from "next-auth/react"
 import {WalletConnectConnector} from 'wagmi/connectors/walletConnect'
 import {MetaMaskConnector} from 'wagmi/connectors/metaMask'
 import {CoinbaseWalletConnector} from 'wagmi/connectors/coinbaseWallet';
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
+import InvalidAccount from "@/components/InvalidAccount";
 
 const projectId = '6c1e4f11c58134a472f755910a5249d6'
 
@@ -47,31 +48,36 @@ export default function Providers({children, session}: {children: React.ReactNod
 }
 
 const AccountManagement = ({children}: {children: React.ReactNode}) => {
-	const {connector} = useAccount();
+	const {connector, address} = useAccount();
 	const {data: session} = useSession();
+	const [invalidAccount, setInvalid] = useState<boolean>(false);
 
 	useEffect(() => {
 		const handleConnectorUpdate = ({account, chain}: ConnectorData) => {
 			if (account) {
 				if (account !== session?.address) {
-					console.log("Unverified account, please resign.")
+					setInvalid(true);
 				}
 			}
 			if (chain) {
 				if (chain.unsupported) {
-					console.log("This chain isn't supported yet.")
+					alert("This chain isn't supported yet.")
 				}
 			}
 		}
 
 		if (connector) connector.on('change', handleConnectorUpdate);
+		const removeConnector = () => {
+			connector?.off('change', handleConnectorUpdate);
+		}
 
-		return () => connector?.off('change', handleConnectorUpdate);
-	}, [connector, session?.address]);
+		return removeConnector
+	}, [connector, session?.address, setInvalid]);
 
 
 	return (
 		<>
+			{invalidAccount && <InvalidAccount sessionAddress={session?.address} connectedAddress={address} />}
 			{children}
 		</>
 	)
