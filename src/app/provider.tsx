@@ -6,7 +6,7 @@ import { SessionProvider, useSession } from "next-auth/react"
 import {WalletConnectConnector} from 'wagmi/connectors/walletConnect'
 import {MetaMaskConnector} from 'wagmi/connectors/metaMask'
 import {CoinbaseWalletConnector} from 'wagmi/connectors/coinbaseWallet';
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import InvalidAccount from "@/components/InvalidAccount";
 
 const projectId = '6c1e4f11c58134a472f755910a5249d6'
@@ -35,15 +35,13 @@ const config = createConfig({
 
 export default function Providers({children, session}: {children: React.ReactNode, session: any}) {
 	return (
-		<>
-			<WagmiConfig config={config}>
-				<SessionProvider session={session} >
-					<AccountManagement>
-						{children}
-					</AccountManagement>
-				</SessionProvider>
-			</WagmiConfig>
-		</>
+		<WagmiConfig config={config}>
+			<SessionProvider session={session} >
+				<AccountManagement>
+					{children}
+				</AccountManagement>
+			</SessionProvider>
+		</WagmiConfig>
 	)
 }
 
