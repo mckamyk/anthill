@@ -1,14 +1,13 @@
 "use client";
-import { useAccount, useContractWrite } from "wagmi";
-import { registryFactoryABI } from "../../generated";
+import { Address, useAccount } from "wagmi";
+import { useRegistryFactoryWrite } from "../../generated";
 
-export default function CreateRegsitry({factoryAddress}: {factoryAddress: `0x${string}`}) {
+export default function CreateRegsitry({factoryAddress}: {factoryAddress: Address}) {
 	const { address } = useAccount();
-	const {data, isLoading, isSuccess, isError, write, status, writeAsync} = useContractWrite({
-		address: factoryAddress,
-		abi: registryFactoryABI,
+  const {data, isLoading, isSuccess, isError, status, writeAsync} = useRegistryFactoryWrite({
+    address: factoryAddress,
 		functionName: 'deployRegistry',
-	});
+  });
 
 	const handleSubmit = async (f: FormData) => {
 		const name = f.get("name") as string;
