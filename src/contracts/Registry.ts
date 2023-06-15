@@ -1,6 +1,7 @@
 import { registryABI, safeABI } from '@/generated'
-import { Address, getContract } from 'viem'
+import { Address, getContract, createWalletClient } from 'viem'
 import { publicClient } from './clients'
+import { walkUpBindingElementsAndPatterns } from 'typescript'
 
 
 const getRegsitryContract = (address: Address) => {
@@ -22,7 +23,7 @@ const getSafeContract = (address: Address) => {
 export const getRegistryLight = async (address: Address): Promise<RegistryLight> => {
 	const contract = getRegsitryContract(address);
 	const roles = contract.read.getRoles()
-		.then(roles => roles.map(r => r.addr))
+		.then(roles => roles.map(r => ({ name: r.name, address: r.addr, fill: () => getRole(r.name, r.addr) })))
 
 	return {
 		address,
@@ -48,13 +49,14 @@ export const getRegistryFull = async (address: Address): Promise<RegistryFull> =
 	}
 }
 
-const getRole = async (name: string, address: Address): Promise<Role> => {
+const getRole = async (name: string, address: Address): Promise<RoleFull> => {
 	const safe = getSafeContract(address);
 
 	return {
 		name,
 		address,
 		owners: await safe.read.getOwners(),
+		safe,
 	}
 }
 
@@ -64,23 +66,26 @@ interface Registry {
 	owner: Address
 }
 
-interface RegistryLight extends Registry {
-	roles: Address[];
+export interface RegistryLight extends Registry {
+	roles: RoleLight[];
 
 	fill: () => Promise<RegistryFull>
 }
 
-interface RegistryFull extends Registry {
+export interface RegistryFull extends Registry {
 	roles: Role[];
 }
 
-interface Role {
+export interface Role {
 	name: string;
 	address: Address
-	owners: readonly Address[];
 }
 
-interface RoleLight {
-	name: string;
-	address: Address
+export interface RoleFull extends Role {
+	owners: readonly Address[];
+	safe: ReturnType<typeof getSafeContract>
+}
+
+export interface RoleLight extends Role {
+	fill: () => Promise<RoleFull>
 }

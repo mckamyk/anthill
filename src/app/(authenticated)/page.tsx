@@ -1,27 +1,27 @@
-import CreateRegsitry from "./createRegistry";
+import CreateRegsitry from "./create/createRegistry";
 import { redirect } from "next/navigation";
 import { prettyAddress } from "@/tools/address";
 import Link from "next/link";
 import Card from "@/components/Card";
 import { getSession } from "@/tools/session";
-import { getRegistryFull } from "@/contracts/Registry";
-import { getFactoryAddress, getRegistries } from "@/contracts/Factory";
+import { RegistryLight } from "@/contracts/Registry";
+import { getRegistries } from "@/contracts/Factory";
+import ToastBox from "@/components/Toast";
 
 export default async function Home() {
   const session = await getSession();
   if (!session) redirect("/login")
   const registries = await getRegistries();
-  const factoryAddress = await getFactoryAddress();
 
   return (
     <div className="flex items-center justify-center pt-0">
       {
-        registries.length === 0 ? <CreateRegsitry factoryAddress={factoryAddress} /> : (
+        registries.length === 0 ? <NoRegistry /> : (
           <div className="flex items-center justify-center gap-2">
             {registries.map(r => (
-              <Card>
+              <Card className="hover:border-sky-400">
                 {/* @ts-ignore */}
-                <RegistryButton key={r.address} address={r.address} />
+                <RegistryButton key={r.address} registry={r} />
               </Card>
             ))}
           </div>
@@ -31,22 +31,30 @@ export default async function Home() {
   )
 }
 
-const RegistryButton = async ({address}: {address: `0x${string}`}) => {
-  const reg = await getRegistryFull(address);
+const NoRegistry = () => {
+  return (
+    <Card>
+      <div className="text-2xl mb-4">Create your first Registry!</div>
+      <div className="flex justify-center">
+        <Link href="/create" className="bg-sky-800 rounded-md px-2 py-1 hover:bg-sky-600 transition-colors">
+          Create Registry
+        </Link>
+      </div>
+    </Card>
+  )
+}
+
+const RegistryButton = async ({registry}: {registry: RegistryLight}) => {
   return (
     <Link
-      href={`/${address}`}
+      href={`/${registry.address}`}
     >
-      <div>{reg.name}</div>
-      <div>{prettyAddress(address)}</div>
-      <div>Owner: {prettyAddress(reg.owner)}</div>
-      <div>{reg.roles.map(role => (
-        <Card key={role.address}>
-          <div>{role.name}</div>
-          <div>{role.address}</div>
-          <div>{role.owners}</div>
-        </Card>
-      ))}</div>
+      <div>{registry.name}</div>
+      <div>{prettyAddress(registry.address)}</div>
+      <div>Owner: {prettyAddress(registry.owner)}</div>
+      <Card>
+        Roles: {registry.roles.length}
+      </Card>
     </Link>
   )
 }

@@ -4,13 +4,13 @@ import { publicClient } from "./clients"
 import { getSession } from "@/tools/session"
 import { getRegistryLight } from "./Registry"
 
-const getRouter = () => {
-	return getContract({
-		abi: registryRouterABI,
-		address: "0xb7f8bc63bbcad18155201308c8f3540b07f84f5e",
-		publicClient,
-	})
-}
+export const factoryAddress = "0xB7f8BC63BbcaD18155201308C8f3540b07f84F5e";
+
+const router = getContract({
+	abi: registryRouterABI,
+	address: factoryAddress,
+	publicClient,
+})
 
 export const getRegistryFactory = async () => {
 	return getContract({
@@ -21,7 +21,6 @@ export const getRegistryFactory = async () => {
 }
 
 export const getFactoryAddress = async () => {
-	const router = getRouter();
 	return router.read.getAddress();
 }
 

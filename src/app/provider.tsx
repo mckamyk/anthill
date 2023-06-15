@@ -8,6 +8,7 @@ import {MetaMaskConnector} from 'wagmi/connectors/metaMask'
 import {CoinbaseWalletConnector} from 'wagmi/connectors/coinbaseWallet';
 import React, { useEffect, useState } from "react";
 import InvalidAccount from "@/components/InvalidAccount";
+import ToastProvider from "@/components/Toast";
 
 const projectId = '6c1e4f11c58134a472f755910a5249d6'
 
@@ -37,9 +38,11 @@ export default function Providers({children, session}: {children: React.ReactNod
 	return (
 		<WagmiConfig config={config}>
 			<SessionProvider session={session} >
-				<AccountManagement>
-					{children}
-				</AccountManagement>
+				<ToastProvider>
+					<AccountManagement>
+						{children}
+					</AccountManagement>
+				</ToastProvider>
 			</SessionProvider>
 		</WagmiConfig>
 	)
