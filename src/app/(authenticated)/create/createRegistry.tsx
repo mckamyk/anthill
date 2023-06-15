@@ -1,29 +1,32 @@
 "use client";
-import { useAccount } from "wagmi";
+import { useAccount, Address } from "wagmi";
 import { useCreateRegistry } from "@/tools/hooks/useRegistry";
 import {useRouter} from 'next/navigation';
-import { factoryAddress } from "@/contracts/Factory";
 import { useToast } from "@/components/Toast";
+import { useEffect } from "react";
 
-export default function CreateRegsitry() {
+type CreateRegistryProps = {
+  factoryAddress: Address
+}
+
+export default function CreateRegsitry({factoryAddress}: CreateRegistryProps) {
 	const { address } = useAccount();
-  const {data, isLoading, isSuccess, isError, status, writeAsync} = useCreateRegistry({
+  const {data, status, write, writeAsync} = useCreateRegistry({
     address: factoryAddress,
   })
-  const router = useRouter();
+  const {push} = useRouter();
   const {addErrorToast, addSuccessToast} = useToast();
+
+  useEffect(() => {
+    console.log(data);
+  }, [data])
 
 	const handleSubmit = async (f: FormData) => {
 		const name = f.get("name") as string;
 		if (!address) throw new Error("Wallet not connected")
-    try {
-      const result = await writeAsync({ args: [name, [address], BigInt(1), BigInt(Math.floor(Math.random()*1000000))] })
-      addSuccessToast({title: "Created Registry", message: `Registry created at ${result}`})
-      router.push("/")
-    } catch (e: any) {
-      addErrorToast({title: "Failed to create registry", message: e.message})
-      console.log(e);
-    }
+    writeAsync({ args: [name, [address], BigInt(1), BigInt(Math.floor(Math.random()*1000000))] })
+      .then(res => addSuccessToast({title: "Created Registry", message: `Registry created at ${res.hash}`}))
+      .catch(err => addErrorToast({title: "Error", message: err.message}))
 	}
 
 	return (

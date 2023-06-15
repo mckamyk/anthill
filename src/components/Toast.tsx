@@ -75,7 +75,9 @@ const Toast: React.FC<Toast> = ({title, message, type, id}) => {
 					<CloseIcon width={20} height={20} />
 				</div>
 			</div>
-			<pre>{message}</pre>
+			<pre className="max-w-2xl overflow-x-auto">
+				{message}
+			</pre>
 		</div>
 	)
 }
