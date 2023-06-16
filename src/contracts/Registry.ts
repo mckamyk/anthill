@@ -1,7 +1,6 @@
 import { registryABI, safeABI } from '@/generated'
-import { Address, getContract, createWalletClient } from 'viem'
+import { Address, getContract } from 'viem'
 import { publicClient } from './clients'
-import { walkUpBindingElementsAndPatterns } from 'typescript'
 
 
 const getRegsitryContract = (address: Address) => {
@@ -12,7 +11,7 @@ const getRegsitryContract = (address: Address) => {
 	})
 }
 
-const getSafeContract = (address: Address) => {
+export const getSafeContract = (address: Address) => {
 	return getContract({
 		address,
 		abi: safeABI,
@@ -55,7 +54,8 @@ const getRole = async (name: string, address: Address): Promise<RoleFull> => {
 	return {
 		name,
 		address,
-		owners: await safe.read.getOwners(),
+		// owners: await safe.read.getOwners(),
+		owners: [],
 		safe,
 	}
 }

@@ -3,7 +3,7 @@ import { useAccount, Address } from "wagmi";
 import { useCreateRegistry } from "@/tools/hooks/useRegistry";
 import {useRouter} from 'next/navigation';
 import { useToast } from "@/components/Toast";
-import { useEffect } from "react";
+import { FormEventHandler, useEffect } from "react";
 
 type CreateRegistryProps = {
   factoryAddress: Address
@@ -21,11 +21,16 @@ export default function CreateRegsitry({factoryAddress}: CreateRegistryProps) {
     console.log(data);
   }, [data])
 
-	const handleSubmit = async (f: FormData) => {
-		const name = f.get("name") as string;
+	const handleSubmit: FormEventHandler<HTMLFormElement> = (e) => {
+    e.preventDefault();
+    const form = new FormData(e.currentTarget);
+    const name = form.get("name") as string;
 		if (!address) throw new Error("Wallet not connected")
     writeAsync({ args: [name, [address], BigInt(1), BigInt(Math.floor(Math.random()*1000000))] })
-      .then(res => addSuccessToast({title: "Created Registry", message: `Registry created at ${res.hash}`}))
+      .then(res => {
+        addSuccessToast({title: "Created Registry", message: `Registry created at ${res.hash}`})
+        push('/');
+      })
       .catch(err => addErrorToast({title: "Error", message: err.message}))
 	}
 
@@ -35,7 +40,7 @@ export default function CreateRegsitry({factoryAddress}: CreateRegistryProps) {
         <div className="relative p-2 rounded-lg shadow-lg bg-slate-700">
           <div>Get started by creating an Orginaization</div>
           <div className="">
-            <form action={handleSubmit}>
+            <form onSubmit={handleSubmit}>
               <div className="mb-2">
                 <label className="text-sm pl-2">Name of Org</label>
                 <input className="form-input bg-slate-800 block rounded-md w-full" name="name"></input>

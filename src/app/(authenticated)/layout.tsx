@@ -29,10 +29,10 @@ export default async function RootLayout({
     <html lang="en">
       <body className={`${inter.className} from-slate-950 to-sky-950 bg-gradient-to-tr w-screen h-screen`}>
         <Providers session={session}>
-            <HeaderBar />
-            <div className="h-screen w-screen pt-20">
-              {children}
-            </div>
+          <HeaderBar />
+          <div className="h-screen w-screen pt-20">
+            {children}
+          </div>
         </Providers>
       </body>
     </html>

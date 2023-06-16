@@ -5,6 +5,7 @@ import { getSession } from "@/tools/session"
 import { signOut } from "next-auth/react"
 import { Address } from "viem"
 import RoleInfo from "./RoleInfo"
+import AddressChip from "@/components/AddressChip"
 
 export default async function Registry({
 	params: {registry}
@@ -21,7 +22,10 @@ export default async function Registry({
 		<div className="flex justify-center">
 			<Card className="w-1/2">
 				<div className="flex justify-between">
-					<div className="text-xl">{regLight.name}</div>
+					<div>
+						<div className="text-xl">{regLight.name}</div>
+						<div><AddressChip address={regLight.address} /></div>
+					</div>
 					<div>
 						<div className="text-sm">Address:</div>
 						<div>{prettyAddress(regLight.address)}</div>
