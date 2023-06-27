@@ -4,7 +4,7 @@ import { publicClient } from "./clients"
 import { getSession } from "@/tools/session"
 import { getRegistryLight } from "./Registry"
 
-export const routerAddress = "0xb7f8bc63bbcad18155201308c8f3540b07f84f5e";
+export const routerAddress = "0x610178dA211FEF7D417bC0e6FeD39F05609AD788";
 
 const router = getContract({
 	abi: registryRouterABI,
